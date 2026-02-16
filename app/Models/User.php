@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -44,5 +45,28 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /* |--------------------------------------------------------------------------
+     | Relasi Database
+     |--------------------------------------------------------------------------
+     */
+
+    /**
+     * Relasi ke tabel documentations
+     * Satu User bisa memiliki banyak Dokumentasi
+     */
+    public function documentations(): HasMany
+    {
+        return $this->hasMany(Documentation::class);
+    }
+
+    /**
+     * Relasi ke tabel projects
+     * Satu User bisa memiliki banyak Project
+     */
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
     }
 }

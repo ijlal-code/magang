@@ -9,4 +9,9 @@ class Project extends Model // Ganti 'Project' untuk file Project.php
 {
     use HasFactory;
     protected $guarded = ['id'];
+
+    // Tambahkan di dalam class
+public function user() {
+    return $this->belongsTo(User::class);
+}
 }
