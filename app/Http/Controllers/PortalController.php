@@ -4,196 +4,180 @@ namespace App\Http\Controllers;
 
 use App\Models\Documentation;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class PortalController extends Controller
 {
-    // ==========================================
-    // BAGIAN PUBLIK (LANDING PAGE)
-    // ==========================================
-
-    /**
-     * Menampilkan halaman utama dengan data yang sudah diapprove.
-     */
+    // ================== PUBLIC & VIEW ==================
     public function index()
     {
-        // Hanya ambil data dengan status 'approved'
-        // Diurutkan dari yang terbaru (latest)
-        $docs = Documentation::where('status', 'approved')->latest()->get();
-        $projects = Project::where('status', 'approved')->latest()->get();
+        // Jika Admin: Tampilkan SEMUA (untuk dikelola)
+        // Jika User/Guest: Tampilkan HANYA yang APPROVED
         
-        return view('welcome', compact('docs', 'projects'));
-    }
+        $isAdmin = Auth::check() && Auth::user()->is_admin;
 
-    // ==========================================
-    // BAGIAN USER (UPLOAD & DELETE)
-    // ==========================================
-
-    /**
-     * Menyimpan Dokumentasi baru dari User yang login.
-     */
-    public function storeDocumentation(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'image' => 'required|image|max:2048', // Maksimal 2MB
-        ]);
-
-        // Upload Gambar
-        $path = $request->file('image')->store('public/uploads/docs');
-
-        // Simpan ke Database
-        Documentation::create([
-            'user_id'     => Auth::id(),             // ID User yang sedang login
-            'title'       => $request->title,
-            'description' => $request->description,
-            'author_name' => Auth::user()->name,     // Nama User otomatis
-            'image_path'  => str_replace('public/', 'storage/', $path),
-            'status'      => 'pending'               // Default pending (menunggu admin)
-        ]);
-
-        return back()->with('success_popup', 'Dokumentasi berhasil dikirim! Menunggu persetujuan Admin.');
-    }
-
-    /**
-     * Menyimpan Project baru dari User yang login.
-     */
-    public function storeProject(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'project_url' => 'required|url',
-            'thumbnail' => 'required|image|max:2048', // Maksimal 2MB
-        ]);
-
-        // Upload Thumbnail
-        $path = $request->file('thumbnail')->store('public/uploads/projects');
-
-        // Simpan ke Database
-        Project::create([
-            'user_id'        => Auth::id(),
-            'title'          => $request->title,
-            'description'    => $request->description,
-            'project_url'    => $request->project_url,
-            'author_name'    => Auth::user()->name,
-            'thumbnail_path' => str_replace('public/', 'storage/', $path),
-            'status'         => 'pending'
-        ]);
-
-        return back()->with('success_popup', 'Projek berhasil dikirim! Menunggu persetujuan Admin.');
-    }
-
-    /**
-     * Menghapus Dokumentasi (Hanya pemilik yang bisa).
-     */
-    public function deleteDocumentation($id)
-    {
-        $doc = Documentation::findOrFail($id);
-
-        // Cek apakah yang menghapus adalah pemilik asli
-        if ($doc->user_id != Auth::id()) {
-            return back()->with('error', 'Anda tidak memiliki izin untuk menghapus item ini.');
+        if ($isAdmin) {
+            $docs = Documentation::latest()->get();
+            $projects = Project::latest()->get();
+            $users = User::where('is_admin', false)->latest()->get(); // List user untuk admin
+        } else {
+            $docs = Documentation::where('status', 'approved')->latest()->get();
+            $projects = Project::where('status', 'approved')->latest()->get();
+            $users = [];
         }
 
-        // Hapus file gambar dari storage (opsional, agar hemat penyimpanan)
-        $filePath = str_replace('storage/', 'public/', $doc->image_path);
-        if(Storage::exists($filePath)) {
-            Storage::delete($filePath);
-        }
-
-        $doc->delete();
-
-        return back()->with('success', 'Dokumentasi berhasil dihapus.');
+        return view('welcome', compact('docs', 'projects', 'users', 'isAdmin'));
     }
 
-    /**
-     * Menghapus Projek (Hanya pemilik yang bisa).
-     */
-    public function deleteProject($id)
-    {
-        $proj = Project::findOrFail($id);
-
-        // Cek kepemilikan
-        if ($proj->user_id != Auth::id()) {
-            return back()->with('error', 'Anda tidak memiliki izin untuk menghapus item ini.');
-        }
-
-        // Hapus file thumbnail
-        $filePath = str_replace('storage/', 'public/', $proj->thumbnail_path);
-        if(Storage::exists($filePath)) {
-            Storage::delete($filePath);
-        }
-
-        $proj->delete();
-
-        return back()->with('success', 'Projek berhasil dihapus.');
-    }
-
-    // ==========================================
-    // BAGIAN ADMIN (APPROVAL)
-    // ==========================================
-    
-    /**
-     * Menampilkan halaman login khusus Admin.
-     */
-    public function adminLoginView() {
-        return view('admin.login');
-    }
-
-    /**
-     * Proses Login Admin (Hardcoded sesuai request).
-     */
-    public function adminLogin(Request $request) {
-        // Validasi input
-        $request->validate([
-            'username' => 'required',
+    // ================== AUTH (LOGIN/REGISTER/LOGOUT) ==================
+    public function login(Request $request) {
+        $credentials = $request->validate([
+            'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        // Cek kredensial
-        if($request->username == 'admin_tonasa' && $request->password == 'rahasia123') {
-            session(['is_admin' => true]); // Set session admin
-            return redirect()->route('admin.dashboard');
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            $role = Auth::user()->is_admin ? 'Admin' : 'User';
+            return redirect()->route('home')->with('success', "Selamat datang kembali, $role!");
         }
 
-        return back()->with('error', 'Username atau Password salah!');
+        return back()->with('error', 'Email atau password salah.');
     }
 
-    /**
-     * Dashboard Admin untuk melihat data Pending.
-     */
-    public function dashboard() {
-        // Cek session manual (middleware sederhana di controller)
-        if(!session('is_admin')) {
-            return redirect()->route('admin.login')->with('error', 'Silahkan login admin terlebih dahulu.');
-        }
+    public function register(Request $request) {
+        $request->validate([
+            'name' => 'required|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6|confirmed'
+        ]);
 
-        $pendingDocs = Documentation::where('status', 'pending')->latest()->get();
-        $pendingProjects = Project::where('status', 'pending')->latest()->get();
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'is_admin' => false
+        ]);
 
-        return view('admin.dashboard', compact('pendingDocs', 'pendingProjects'));
+        Auth::login($user);
+        return redirect()->route('home')->with('success', 'Akun berhasil dibuat! Silahkan upload karyamu.');
     }
 
-    /**
-     * Menyetujui (Approve) data masuk.
-     */
-    public function approve($type, $id) {
-        if(!session('is_admin')) return abort(403);
+    public function logout(Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('home')->with('success', 'Berhasil logout.');
+    }
 
-        if($type == 'doc') {
-            $data = Documentation::find($id);
-            if($data) $data->update(['status' => 'approved']);
+    // ================== CRUD DOKUMENTASI ==================
+    public function storeDoc(Request $request) {
+        $request->validate(['title'=>'required', 'image'=>'required|image', 'description'=>'required']);
+        
+        $path = $request->file('image')->store('public/uploads/docs');
+        
+        // Auto approve jika Admin yang upload
+        $status = Auth::user()->is_admin ? 'approved' : 'pending';
+
+        Documentation::create([
+            'user_id' => Auth::id(),
+            'author_name' => Auth::user()->name,
+            'title' => $request->title,
+            'description' => $request->description,
+            'image_path' => str_replace('public/', 'storage/', $path),
+            'status' => $status
+        ]);
+
+        return back()->with('success', 'Dokumentasi berhasil ditambahkan!');
+    }
+
+    public function updateDoc(Request $request, $id) {
+        $doc = Documentation::findOrFail($id);
+        
+        // Cek Izin: Admin BOLEH, Pemilik BOLEH
+        if (!Auth::user()->is_admin && Auth::id() != $doc->user_id) abort(403);
+
+        $doc->title = $request->title;
+        $doc->description = $request->description;
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('public/uploads/docs');
+            $doc->image_path = str_replace('public/', 'storage/', $path);
         }
         
-        if($type == 'project') {
-            $data = Project::find($id);
-            if($data) $data->update(['status' => 'approved']);
+        $doc->save();
+        return back()->with('success', 'Dokumentasi berhasil diperbarui.');
+    }
+
+    public function deleteDoc($id) {
+        $doc = Documentation::findOrFail($id);
+        if (!Auth::user()->is_admin && Auth::id() != $doc->user_id) abort(403);
+        
+        $doc->delete();
+        return back()->with('success', 'Dokumentasi dihapus.');
+    }
+
+    // ================== CRUD PROJEK ==================
+    public function storeProject(Request $request) {
+        $request->validate(['title'=>'required', 'project_url'=>'required', 'thumbnail'=>'required|image']);
+        
+        $path = $request->file('thumbnail')->store('public/uploads/projects');
+        $status = Auth::user()->is_admin ? 'approved' : 'pending';
+
+        Project::create([
+            'user_id' => Auth::id(),
+            'author_name' => Auth::user()->name,
+            'title' => $request->title,
+            'description' => $request->description,
+            'project_url' => $request->project_url,
+            'thumbnail_path' => str_replace('public/', 'storage/', $path),
+            'status' => $status
+        ]);
+
+        return back()->with('success', 'Projek berhasil ditambahkan!');
+    }
+
+    public function updateProject(Request $request, $id) {
+        $proj = Project::findOrFail($id);
+        if (!Auth::user()->is_admin && Auth::id() != $proj->user_id) abort(403);
+
+        $proj->title = $request->title;
+        $proj->project_url = $request->project_url;
+        $proj->description = $request->description;
+
+        if ($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('public/uploads/projects');
+            $proj->thumbnail_path = str_replace('public/', 'storage/', $path);
         }
 
-        return back()->with('success', 'Item berhasil disetujui dan kini tampil di publik.');
+        $proj->save();
+        return back()->with('success', 'Projek berhasil diperbarui.');
+    }
+
+    public function deleteProject($id) {
+        $proj = Project::findOrFail($id);
+        if (!Auth::user()->is_admin && Auth::id() != $proj->user_id) abort(403);
+        $proj->delete();
+        return back()->with('success', 'Projek dihapus.');
+    }
+
+    // ================== ADMIN ACTIONS ==================
+    public function approveItem($type, $id) {
+        if (!Auth::user()->is_admin) abort(403);
+        
+        if($type == 'doc') Documentation::find($id)->update(['status' => 'approved']);
+        if($type == 'project') Project::find($id)->update(['status' => 'approved']);
+        
+        return back()->with('success', 'Item berhasil disetujui (Approved).');
+    }
+
+    public function deleteUser($id) {
+        if (!Auth::user()->is_admin) abort(403);
+        User::destroy($id); // Cascading delete doc & project handled by migration
+        return back()->with('success', 'User berhasil dihapus.');
     }
 }

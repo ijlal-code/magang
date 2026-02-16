@@ -12,6 +12,15 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
+    // 1. Akun ADMIN
+        User::create([
+            'name' => 'Super Admin',
+            'email' => 'admin@tonasa.com',
+            'password' => Hash::make('password'), // Password admin
+            'is_admin' => true,
+        ]);
+
         // 1. Buat User Admin/Utama (Agar kamu bisa login)
         $user = User::create([
             'name' => 'Magang User',
