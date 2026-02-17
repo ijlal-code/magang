@@ -44,15 +44,19 @@
     @include('components.modals-auth')
     @include('components.modals-content')
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // UPDATE: once: true agar animasi tidak berulang saat scroll naik turun
-        AOS.init({
-            once: true, 
-            duration: 800,
+        // Jalankan AOS setelah konten dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                once: true, 
+                duration: 800,
+                // Matikan AOS di HP jika bikin berat (opsional)
+                // disable: 'mobile' 
+            });
         });
-        
-        // SweetAlert Trigger (Tetap sama)
+
+        // SweetAlert Logic
         @if(session('success'))
             Swal.fire({ icon: 'success', title: 'Berhasil', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false });
         @endif

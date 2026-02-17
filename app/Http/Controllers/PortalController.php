@@ -113,10 +113,12 @@ class PortalController extends Controller
 
     // Helper: Simpan Gambar ke Storage Public
     private function storeImage($file, $folder) {
-        // Simpan ke storage/app/public/uploads/...
-        $path = $file->store("public/uploads/{$folder}");
-        // Ubah string path agar bisa dibaca asset() -> storage/uploads/...
-        return str_replace('public/', 'storage/', $path);
+        // PERBAIKAN: Tambahkan parameter kedua 'public' agar masuk ke storage/app/public
+        // Hasil $path akan seperti: "uploads/docs/namafile.jpg"
+        $path = $file->store("uploads/{$folder}", 'public');
+        
+        // Kita tambahkan prefix 'storage/' manual agar sesuai dengan link asset()
+        return 'storage/' . $path;
     }
 
     public function storeDoc(Request $request) {
