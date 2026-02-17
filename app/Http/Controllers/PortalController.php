@@ -17,30 +17,56 @@ class PortalController extends Controller
     {
         $isAdmin = Auth::check() && Auth::user()->role === 'admin';
 
+        // Tampilkan hanya 6 item terbaru di Homepage agar ringan
         if ($isAdmin) {
-            // Admin melihat semua data (termasuk pending)
-            $docs = Documentation::latest()->get();
-            $projects = Project::latest()->get();
+            $docs = Documentation::latest()->take(6)->get();
+            $projects = Project::latest()->take(6)->get();
         } else {
-            // User/Guest hanya melihat yang approved
-            $docs = Documentation::where('status', 'approved')->latest()->get();
-            $projects = Project::where('status', 'approved')->latest()->get();
+            $docs = Documentation::where('status', 'approved')->latest()->take(6)->get();
+            $projects = Project::where('status', 'approved')->latest()->take(6)->get();
         }
 
         return view('welcome', compact('docs', 'projects', 'isAdmin'));
     }
 
+    // [BARU] Halaman Semua Dokumentasi (Search + Pagination)
+    public function allDocumentation(Request $request) {
+        $query = Documentation::where('status', 'approved');
+
+        // Logic Pencarian
+        if ($request->has('search') && $request->search != '') {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+        }
+
+        // Tampilkan 9 item per halaman
+        $docs = $query->latest()->paginate(9)->withQueryString();
+        return view('lengkap.documentation', compact('docs'));
+    }
+
+    // [BARU] Halaman Semua Projek (Search + Pagination)
+    public function allProjects(Request $request) {
+        $query = Project::where('status', 'approved');
+
+        // Logic Pencarian
+        if ($request->has('search') && $request->search != '') {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+        }
+
+        $projects = $query->latest()->paginate(9)->withQueryString();
+        return view('lengkap.projects', compact('projects'));
+    }
+
     // ================== AUTHENTICATION ==================
     public function register(Request $request) {
-        // Validasi Custom: Nama & Email harus unik
         $request->validate([
             'name' => 'required|max:255|unique:users,name',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed'
         ], [
-            // Pesan Error Kustom (Bahasa Indonesia)
-            'name.unique' => 'Nama ini sudah digunakan. Harap gunakan nama lain atau tambahkan detail.',
-            'email.unique' => 'Email ini sudah terdaftar sebelumnya.',
+            'name.unique' => 'Nama ini sudah digunakan.',
+            'email.unique' => 'Email ini sudah terdaftar.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'password.min' => 'Password minimal 6 karakter.'
         ]);
@@ -50,11 +76,11 @@ class PortalController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'user',
-            'can_post_directly' => true // Default: User baru bebas upload
+            'can_post_directly' => true
         ]);
 
         Auth::login($user);
-        return redirect()->route('home')->with('success', 'Akun berhasil dibuat! Anda bisa langsung upload karya.');
+        return redirect()->route('home')->with('success', 'Akun berhasil dibuat!');
     }
 
     public function login(Request $request) {
@@ -78,13 +104,12 @@ class PortalController extends Controller
     }
 
     // ================== CRUD UTAMA (Upload) ==================
-    
-    // Helper: Menentukan status & path gambar
-    // Helper: Menentukan status & path gambar
+
+    // Helper: Menentukan Data Upload (User Login vs Guest)
     private function prepareUploadData(Request $request) {
         if (Auth::check()) {
+            // Jika User Login
             $user = Auth::user();
-            // Cek hak akses posting
             $status = ($user->role === 'admin' || $user->can_post_directly) ? 'approved' : 'pending';
             
             return [
@@ -94,38 +119,28 @@ class PortalController extends Controller
                 'msg' => ($status == 'approved') ? 'Berhasil diupload dan langsung tayang!' : 'Berhasil dikirim! Menunggu persetujuan Admin.'
             ];
         } else {
-            // Logic Anonim
-            if (!$request->has('is_anonymous')) {
-                abort(403, 'Akses ditolak.');
-            }
-            
-            // UPDATE: Jika nama kosong, otomatis "Anonim"
+            // Jika Guest / Belum Login
+            // Ambil nama dari input samaran, atau default 'Anonim'
             $anonName = $request->filled('author_name_anon') ? $request->author_name_anon : 'Anonim';
 
             return [
                 'user_id' => null,
                 'author_name' => $anonName,
-                'status' => 'pending',
-                'msg' => 'Upload Anonim berhasil! Menunggu persetujuan Admin.'
+                'status' => 'pending', // Guest selalu butuh approval
+                'msg' => 'Upload berhasil! Menunggu persetujuan Admin.'
             ];
         }
     }
 
     // Helper: Simpan Gambar ke Storage Public
     private function storeImage($file, $folder) {
-        // PERBAIKAN: Tambahkan parameter kedua 'public' agar masuk ke storage/app/public
-        // Hasil $path akan seperti: "uploads/docs/namafile.jpg"
+        // PERBAIKAN: Gunakan disk 'public' agar bisa diakses browser
         $path = $file->store("uploads/{$folder}", 'public');
-        
-        // Kita tambahkan prefix 'storage/' manual agar sesuai dengan link asset()
         return 'storage/' . $path;
     }
 
     public function storeDoc(Request $request) {
-        if (!Auth::check() && !$request->has('is_anonymous')) {
-            return back()->with('error', 'Wajib Login atau centang Anonim.');
-        }
-
+        // Validasi input
         $request->validate(['title'=>'required', 'image'=>'required|image', 'description'=>'required']);
         
         $imagePath = $this->storeImage($request->file('image'), 'docs');
@@ -144,10 +159,6 @@ class PortalController extends Controller
     }
 
     public function storeProject(Request $request) {
-        if (!Auth::check() && !$request->has('is_anonymous')) {
-            return back()->with('error', 'Wajib Login atau centang Anonim.');
-        }
-
         $request->validate(['title'=>'required', 'project_url'=>'required', 'thumbnail'=>'required|image']);
         
         $thumbPath = $this->storeImage($request->file('thumbnail'), 'projects');
@@ -166,17 +177,17 @@ class PortalController extends Controller
         return back()->with('success', $data['msg']);
     }
 
+    // ================== PROTECTED ACTIONS (Edit/Delete) ==================
+
     public function updateDoc(Request $request, $id) {
         $doc = Documentation::findOrFail($id);
+        // Cek permission: Harus Admin atau Pemilik Asli
         if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $doc->user_id)) abort(403);
 
         $doc->title = $request->title;
         $doc->description = $request->description;
         
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada (opsional)
-            // if(Storage::exists(str_replace('storage/', 'public/', $doc->image_path))) { ... }
-            
             $doc->image_path = $this->storeImage($request->file('image'), 'docs');
         }
         $doc->save();
@@ -220,7 +231,7 @@ class PortalController extends Controller
 
         $query = User::where('role', '!=', 'admin');
 
-        // Pencarian User
+        // Search User
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {

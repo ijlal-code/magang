@@ -92,4 +92,9 @@
             @endforelse
         </div>
     </div>
+    <div class="mt-12 text-center" data-aos="fade-up">
+    <a href="{{ route('projects.index') }}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-green-700 bg-green-100 hover:bg-green-200 transition duration-300 shadow-md">
+        Eksplorasi Semua Projek <i class="fas fa-arrow-right ml-2"></i>
+    </a>
+</div>
 </section>
