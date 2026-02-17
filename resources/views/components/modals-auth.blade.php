@@ -1,14 +1,16 @@
 <div x-show="loginModal" 
-     class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" 
-     x-transition:enter="transition ease-out duration-300"
-     x-transition:enter-start="opacity-0 transform scale-90"
-     x-transition:enter-end="opacity-100 transform scale-100"
-     x-transition:leave="transition ease-in duration-200"
-     x-transition:leave-start="opacity-100 transform scale-100"
-     x-transition:leave-end="opacity-0 transform scale-90"
+     class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm" 
      x-cloak>
     
-    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md relative" @click.away="loginModal = false">
+    <div x-show="loginModal"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform scale-90"
+         x-transition:enter-end="opacity-100 transform scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform scale-100"
+         x-transition:leave-end="opacity-0 transform scale-90"
+         class="bg-white rounded-xl shadow-2xl border border-gray-100 p-8 w-full max-w-md relative" 
+         @click.away="loginModal = false">
         
         <button @click="loginModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition">
             <i class="fas fa-times text-xl"></i>
@@ -28,13 +30,13 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input type="email" name="email" placeholder="contoh@email.com" 
-                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50" required>
             </div>
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input type="password" name="password" placeholder="********" 
-                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50" required>
             </div>
 
             <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition transform hover:scale-[1.02] shadow-lg">
@@ -52,16 +54,18 @@
 </div>
 
 <div x-show="registerModal" 
-     class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" 
-     x-transition:enter="transition ease-out duration-300"
-     x-transition:enter-start="opacity-0 transform scale-90"
-     x-transition:enter-end="opacity-100 transform scale-100"
-     x-transition:leave="transition ease-in duration-200"
-     x-transition:leave-start="opacity-100 transform scale-100"
-     x-transition:leave-end="opacity-0 transform scale-90"
+     class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm" 
      x-cloak>
     
-    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md relative" @click.away="registerModal = false">
+    <div x-show="registerModal"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform scale-90"
+         x-transition:enter-end="opacity-100 transform scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform scale-100"
+         x-transition:leave-end="opacity-0 transform scale-90"
+         class="bg-white rounded-xl shadow-2xl border border-gray-100 p-8 w-full max-w-md relative" 
+         @click.away="registerModal = false">
         
         <button @click="registerModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition">
             <i class="fas fa-times text-xl"></i>
@@ -75,7 +79,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
                 <input type="text" name="name" value="{{ old('name') }}" placeholder="Nama Lengkap" 
-                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none @error('name') border-red-500 @enderror" required>
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-gray-50 @error('name') border-red-500 @enderror" required>
                 @error('name')
                     <p class="text-red-500 text-xs mt-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
                 @enderror
@@ -84,7 +88,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input type="email" name="email" value="{{ old('email') }}" placeholder="contoh@email.com" 
-                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none @error('email') border-red-500 @enderror" required>
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-gray-50 @error('email') border-red-500 @enderror" required>
                 @error('email')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -93,13 +97,13 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input type="password" name="password" placeholder="Min. 6 karakter" 
-                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-gray-50" required>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
                 <input type="password" name="password_confirmation" placeholder="Ulangi password" 
-                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-gray-50" required>
             </div>
 
             <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition transform hover:scale-[1.02] shadow-lg">
