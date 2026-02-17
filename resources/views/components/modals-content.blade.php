@@ -1,4 +1,4 @@
-<div x-show="uploadDocModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" x-cloak>
+<div x-show="uploadDocModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4" x-cloak>
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative" @click.away="uploadDocModal = false">
         <button @click="uploadDocModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-xl"></i></button>
         
@@ -55,7 +55,7 @@
     </div>
 </div>
 
-<div x-show="uploadProjectModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" x-cloak>
+<div x-show="uploadProjectModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4" x-cloak>
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative" @click.away="uploadProjectModal = false">
         <button @click="uploadProjectModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-xl"></i></button>
         
@@ -116,57 +116,74 @@
     </div>
 </div>
 
-<div x-show="detailModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-90 backdrop-blur-sm" x-cloak>
-    <div class="bg-white rounded-lg max-w-3xl w-full p-6 relative overflow-y-auto max-h-[90vh]" @click.away="detailModal = false">
-        <button @click="detailModal = false" class="absolute top-4 right-4 text-red-500 hover:text-red-700 text-2xl transition"><i class="fas fa-times"></i></button>
+<div x-show="detailModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-90 backdrop-blur-sm p-4" x-cloak>
+    <div class="bg-white rounded-lg max-w-4xl w-full relative overflow-hidden flex flex-col max-h-[90vh]" @click.away="detailModal = false">
         
-        <div class="aspect-w-16 aspect-h-9 mb-4 rounded-lg overflow-hidden bg-gray-100">
-            <img :src="'{{ asset('') }}' + selectedItem.image_path" class="w-full h-full object-contain">
+        <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+            <h3 class="font-bold text-lg text-gray-700">Detail Dokumentasi / Projek</h3>
+            <button @click="detailModal = false" class="text-gray-400 hover:text-red-600 transition text-2xl"><i class="fas fa-times"></i></button>
         </div>
-        
-        <h3 x-text="selectedItem.title" class="text-3xl font-bold mb-2 text-gray-900"></h3>
-        
-        <div class="flex items-center mb-6 text-gray-500 text-sm border-b pb-4">
-            <i class="fas fa-user-circle mr-2 text-blue-500"></i> <span x-text="'Diunggah oleh: ' + selectedItem.author_name"></span>
-            <span class="mx-2">•</span>
-            <i class="fas fa-clock mr-2"></i> <span x-text="new Date(selectedItem.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })"></span>
+
+        <div class="overflow-y-auto p-6">
+            <div class="w-full bg-gray-100 rounded-lg overflow-hidden mb-6 flex justify-center items-center shadow-inner min-h-[200px]">
+                <img :src="'{{ asset('') }}' + (selectedItem.image_path ? selectedItem.image_path : selectedItem.thumbnail_path)" 
+                     class="max-w-full max-h-[60vh] object-contain" 
+                     alt="Detail Image"
+                     onerror="this.src='https://via.placeholder.com/800x400?text=Gambar+Tidak+Ditemukan'">
+            </div>
+            
+            <h3 x-text="selectedItem.title" class="text-3xl font-bold mb-2 text-gray-900"></h3>
+            
+            <div class="flex items-center mb-6 text-gray-500 text-sm border-b pb-4">
+                <i class="fas fa-user-circle mr-2 text-blue-500"></i> <span x-text="'Diunggah oleh: ' + selectedItem.author_name"></span>
+                <span class="mx-2">•</span>
+                <i class="fas fa-clock mr-2"></i> <span x-text="new Date(selectedItem.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })"></span>
+            </div>
+            
+            <div class="prose max-w-none text-gray-700 leading-relaxed text-lg mb-4">
+                <p x-text="selectedItem.description" class="whitespace-pre-line"></p>
+            </div>
+
+            <div x-show="selectedItem.project_url" class="mt-6 pt-4 border-t">
+                <a :href="selectedItem.project_url" target="_blank" class="inline-flex items-center justify-center w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition shadow-lg">
+                    Kunjungi Website <i class="fas fa-external-link-alt ml-2"></i>
+                </a>
+            </div>
         </div>
-        
-        <p x-text="selectedItem.description" class="text-gray-700 leading-relaxed text-lg"></p>
     </div>
 </div>
 
-<div x-show="editDocModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" x-cloak>
+<div x-show="editDocModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4" x-cloak>
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative" @click.away="editDocModal = false">
         <button @click="editDocModal = false" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
         <h3 class="text-xl font-bold mb-4">Edit Dokumentasi</h3>
         <form :action="'/doc/update/' + selectedItem.id" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf @method('PUT')
-            <input type="text" name="title" x-model="selectedItem.title" class="w-full border p-2 rounded">
+            <input type="text" name="title" x-model="selectedItem.title" class="w-full border p-2 rounded-lg">
             <div>
                 <p class="text-xs text-gray-500 mb-1">Ganti gambar (opsional):</p>
-                <input type="file" name="image" class="w-full text-sm border p-2 rounded">
+                <input type="file" name="image" class="w-full text-sm border p-2 rounded-lg">
             </div>
-            <textarea name="description" x-model="selectedItem.description" class="w-full border p-2 rounded" rows="4"></textarea>
-            <button class="w-full bg-yellow-500 text-white py-2 rounded font-bold hover:bg-yellow-600">Simpan Perubahan</button>
+            <textarea name="description" x-model="selectedItem.description" class="w-full border p-2 rounded-lg" rows="4"></textarea>
+            <button class="w-full bg-yellow-500 text-white py-2 rounded-lg font-bold hover:bg-yellow-600">Simpan Perubahan</button>
         </form>
     </div>
 </div>
 
-<div x-show="editProjectModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" x-cloak>
+<div x-show="editProjectModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4" x-cloak>
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative" @click.away="editProjectModal = false">
         <button @click="editProjectModal = false" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
         <h3 class="text-xl font-bold mb-4">Edit Projek</h3>
         <form :action="'/project/update/' + selectedItem.id" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf @method('PUT')
-            <input type="text" name="title" x-model="selectedItem.title" class="w-full border p-2 rounded">
-            <input type="url" name="project_url" x-model="selectedItem.project_url" class="w-full border p-2 rounded">
+            <input type="text" name="title" x-model="selectedItem.title" class="w-full border p-2 rounded-lg">
+            <input type="url" name="project_url" x-model="selectedItem.project_url" class="w-full border p-2 rounded-lg">
             <div>
                 <p class="text-xs text-gray-500 mb-1">Ganti thumbnail (opsional):</p>
-                <input type="file" name="thumbnail" class="w-full text-sm border p-2 rounded">
+                <input type="file" name="thumbnail" class="w-full text-sm border p-2 rounded-lg">
             </div>
-            <textarea name="description" x-model="selectedItem.description" class="w-full border p-2 rounded" rows="4"></textarea>
-            <button class="w-full bg-yellow-500 text-white py-2 rounded font-bold hover:bg-yellow-600">Simpan Perubahan</button>
+            <textarea name="description" x-model="selectedItem.description" class="w-full border p-2 rounded-lg" rows="4"></textarea>
+            <button class="w-full bg-yellow-500 text-white py-2 rounded-lg font-bold hover:bg-yellow-600">Simpan Perubahan</button>
         </form>
     </div>
 </div>

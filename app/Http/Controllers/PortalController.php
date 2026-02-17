@@ -27,17 +27,22 @@ class PortalController extends Controller
             $projects = Project::where('status', 'approved')->latest()->get();
         }
 
-        // Variable 'users' tidak lagi dikirim ke 'welcome', 
-        // karena manajemen user sudah punya halaman sendiri.
         return view('welcome', compact('docs', 'projects', 'isAdmin'));
     }
 
     // ================== AUTHENTICATION ==================
     public function register(Request $request) {
+        // Validasi Custom: Nama & Email harus unik
         $request->validate([
             'name' => 'required|max:255|unique:users,name',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed'
+        ], [
+            // Pesan Error Kustom (Bahasa Indonesia)
+            'name.unique' => 'Nama ini sudah digunakan. Harap gunakan nama lain atau tambahkan detail.',
+            'email.unique' => 'Email ini sudah terdaftar sebelumnya.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.min' => 'Password minimal 6 karakter.'
         ]);
 
         $user = User::create([
@@ -45,7 +50,7 @@ class PortalController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'user',
-            'can_post_directly' => true // DEFAULT: User baru BEBAS UPLOAD langsung
+            'can_post_directly' => true // Default: User baru bebas upload
         ]);
 
         Auth::login($user);
@@ -74,11 +79,11 @@ class PortalController extends Controller
 
     // ================== CRUD UTAMA (Upload) ==================
     
-    // Helper: Menentukan status approved/pending berdasarkan hak akses user
+    // Helper: Menentukan status & path gambar
     private function prepareUploadData(Request $request) {
         if (Auth::check()) {
             $user = Auth::user();
-            // Jika Admin ATAU User yang punya hak post langsung -> Approved
+            // Cek hak akses posting
             $status = ($user->role === 'admin' || $user->can_post_directly) ? 'approved' : 'pending';
             
             return [
@@ -88,26 +93,35 @@ class PortalController extends Controller
                 'msg' => ($status == 'approved') ? 'Berhasil diupload dan langsung tayang!' : 'Berhasil dikirim! Menunggu persetujuan Admin.'
             ];
         } else {
-            // Jika GUEST/ANONIM
+            // Logic Anonim
             if (!$request->has('is_anonymous')) {
-                abort(403, 'Anda harus login atau centang opsi Anonim.');
+                abort(403, 'Akses ditolak.');
             }
             return [
                 'user_id' => null,
                 'author_name' => $request->author_name_anon ?? 'Anonim',
-                'status' => 'pending', // Anonim selalu pending
+                'status' => 'pending',
                 'msg' => 'Upload Anonim berhasil! Menunggu persetujuan Admin.'
             ];
         }
     }
 
+    // Helper: Simpan Gambar ke Storage Public
+    private function storeImage($file, $folder) {
+        // Simpan ke storage/app/public/uploads/...
+        $path = $file->store("public/uploads/{$folder}");
+        // Ubah string path agar bisa dibaca asset() -> storage/uploads/...
+        return str_replace('public/', 'storage/', $path);
+    }
+
     public function storeDoc(Request $request) {
         if (!Auth::check() && !$request->has('is_anonymous')) {
-            return back()->with('error', 'Silahkan Login atau centang "Posting sebagai Anonim" untuk melanjutkan.');
+            return back()->with('error', 'Wajib Login atau centang Anonim.');
         }
 
         $request->validate(['title'=>'required', 'image'=>'required|image', 'description'=>'required']);
-        $path = $request->file('image')->store('public/uploads/docs');
+        
+        $imagePath = $this->storeImage($request->file('image'), 'docs');
         $data = $this->prepareUploadData($request);
 
         Documentation::create([
@@ -115,7 +129,7 @@ class PortalController extends Controller
             'author_name' => $data['author_name'],
             'title' => $request->title,
             'description' => $request->description,
-            'image_path' => str_replace('public/', 'storage/', $path),
+            'image_path' => $imagePath,
             'status' => $data['status']
         ]);
 
@@ -124,11 +138,12 @@ class PortalController extends Controller
 
     public function storeProject(Request $request) {
         if (!Auth::check() && !$request->has('is_anonymous')) {
-            return back()->with('error', 'Silahkan Login atau centang "Posting sebagai Anonim" untuk melanjutkan.');
+            return back()->with('error', 'Wajib Login atau centang Anonim.');
         }
 
         $request->validate(['title'=>'required', 'project_url'=>'required', 'thumbnail'=>'required|image']);
-        $path = $request->file('thumbnail')->store('public/uploads/projects');
+        
+        $thumbPath = $this->storeImage($request->file('thumbnail'), 'projects');
         $data = $this->prepareUploadData($request);
 
         Project::create([
@@ -137,7 +152,7 @@ class PortalController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'project_url' => $request->project_url,
-            'thumbnail_path' => str_replace('public/', 'storage/', $path),
+            'thumbnail_path' => $thumbPath,
             'status' => $data['status']
         ]);
 
@@ -150,9 +165,12 @@ class PortalController extends Controller
 
         $doc->title = $request->title;
         $doc->description = $request->description;
+        
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/uploads/docs');
-            $doc->image_path = str_replace('public/', 'storage/', $path);
+            // Hapus gambar lama jika ada (opsional)
+            // if(Storage::exists(str_replace('storage/', 'public/', $doc->image_path))) { ... }
+            
+            $doc->image_path = $this->storeImage($request->file('image'), 'docs');
         }
         $doc->save();
         return back()->with('success', 'Update berhasil.');
@@ -174,8 +192,7 @@ class PortalController extends Controller
         $proj->description = $request->description;
 
         if ($request->hasFile('thumbnail')) {
-            $path = $request->file('thumbnail')->store('public/uploads/projects');
-            $proj->thumbnail_path = str_replace('public/', 'storage/', $path);
+            $proj->thumbnail_path = $this->storeImage($request->file('thumbnail'), 'projects');
         }
 
         $proj->save();
@@ -189,14 +206,14 @@ class PortalController extends Controller
         return back()->with('success', 'Dihapus.');
     }
 
-    // ================== ADMIN USER MANAGEMENT (HALAMAN BARU) ==================
+    // ================== ADMIN USER MANAGEMENT ==================
 
     public function adminUsers(Request $request) {
         if (Auth::user()->role !== 'admin') abort(403);
 
-        $query = User::where('role', '!=', 'admin'); // Hanya tampilkan user biasa
+        $query = User::where('role', '!=', 'admin');
 
-        // Logika Pencarian (Search)
+        // Pencarian User
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -206,43 +223,36 @@ class PortalController extends Controller
         }
 
         $users = $query->latest()->get();
-
         return view('admin.users', compact('users'));
     }
 
-    // Aksi Massal (Bulk Action) dari Checkbox
     public function bulkUserAction(Request $request) {
         if (Auth::user()->role !== 'admin') abort(403);
         
         $ids = $request->ids;
         $action = $request->action;
 
-        if (empty($ids)) {
-            return back()->with('error', 'Tidak ada user yang dipilih.');
-        }
+        if (empty($ids)) return back()->with('error', 'Tidak ada user yang dipilih.');
 
-        // Batasi Upload (can_post_directly = false)
         if ($action == 'restrict') {
             User::whereIn('id', $ids)->update(['can_post_directly' => false]);
-            return back()->with('success', count($ids) . ' user berhasil DIBATASI uploadnya.');
+            return back()->with('success', count($ids) . ' user DIBATASI uploadnya.');
         }
 
-        // Bebaskan Upload (can_post_directly = true)
         if ($action == 'allow') {
             User::whereIn('id', $ids)->update(['can_post_directly' => true]);
-            return back()->with('success', count($ids) . ' user berhasil DIBEBASKAN uploadnya.');
+            return back()->with('success', count($ids) . ' user DIBEBASKAN uploadnya.');
         }
 
-        // Hapus User
         if ($action == 'delete') {
             User::destroy($ids);
-            return back()->with('success', count($ids) . ' user berhasil DIHAPUS.');
+            return back()->with('success', count($ids) . ' user DIHAPUS.');
         }
 
         return back();
     }
 
-    // ================== ADMIN APPROVAL & UTILITIES ==================
+    // ================== ADMIN APPROVAL ==================
     public function approveItem($type, $id) {
         if (Auth::user()->role !== 'admin') abort(403);
         
@@ -252,19 +262,9 @@ class PortalController extends Controller
         return back()->with('success', 'Item disetujui.');
     }
 
-    // Fungsi delete single user (jika tombol hapus satuan ditekan)
     public function deleteUser($id) {
         if (Auth::user()->role !== 'admin') abort(403);
         User::destroy($id);
         return back()->with('success', 'User dihapus.');
-    }
-    
-    // Toggle manual single user (opsional, jika masih dipakai)
-    public function toggleUserStatus($id) {
-        if (Auth::user()->role !== 'admin') abort(403);
-        $user = User::findOrFail($id);
-        $user->can_post_directly = !$user->can_post_directly;
-        $user->save();
-        return back()->with('success', 'Status user diubah.');
     }
 }

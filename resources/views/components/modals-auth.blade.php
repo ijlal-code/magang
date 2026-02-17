@@ -22,12 +22,61 @@
         
         <form action="{{ route('register') }}" method="POST" class="space-y-4">
             @csrf
-            <input type="text" name="name" placeholder="Nama Lengkap" class="w-full border p-3 rounded-lg" required>
-            <input type="email" name="email" placeholder="Email" class="w-full border p-3 rounded-lg" required>
-            <input type="password" name="password" placeholder="Password" class="w-full border p-3 rounded-lg" required>
-            <input type="password" name="password_confirmation" placeholder="Ulangi Password" class="w-full border p-3 rounded-lg" required>
-            <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition">DAFTAR</button>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                <input type="text" name="name" value="{{ old('name') }}" placeholder="Masukkan nama lengkap sesuai identitas..." 
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none @error('name') border-red-500 @enderror" required>
+                @error('name')
+                    <p class="text-red-500 text-xs mt-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="contoh@email.com" 
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none @error('email') border-red-500 @enderror" required>
+                @error('email')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" name="password" placeholder="Minimal 6 karakter..." 
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
+                <input type="password" name="password_confirmation" placeholder="Ulangi password di atas..." 
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
+            </div>
+
+            <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition transform hover:scale-[1.02]">DAFTAR SEKARANG</button>
         </form>
-        <p class="mt-4 text-center text-sm">Sudah punya akun? <button @click="registerModal = false; loginModal = true" class="text-blue-600 font-bold hover:underline">Login</button></p>
+        
+        <p class="mt-4 text-center text-sm">Sudah punya akun? <button @click="registerModal = false; loginModal = true" class="text-blue-600 font-bold hover:underline">Login disini</button></p>
+    </div>
+</div>
+
+<div x-show="loginModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" x-cloak>
+    <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md relative" @click.away="loginModal = false">
+        <button @click="loginModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+        <h2 class="text-2xl font-bold text-center mb-6 text-blue-800">Masuk ke Portal</h2>
+        
+        @if(session('error'))
+            <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm text-center">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <form action="{{ route('login') }}" method="POST" class="space-y-4">
+            @csrf
+            <input type="email" name="email" placeholder="Email" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            <input type="password" name="password" placeholder="Password" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition transform hover:scale-[1.02]">LOGIN</button>
+        </form>
+        <p class="mt-4 text-center text-sm">Belum punya akun? <button @click="loginModal = false; registerModal = true" class="text-blue-600 font-bold hover:underline">Daftar</button></p>
     </div>
 </div>
