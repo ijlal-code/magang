@@ -34,9 +34,7 @@
 
     @include('components.hero')
 
-    @if($isAdmin)
-        @include('components.admin-users')
-    @endif
+   
 
     @include('components.about')
     @include('components.gallery')
