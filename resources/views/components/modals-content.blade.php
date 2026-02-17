@@ -1,5 +1,5 @@
-<div x-show="uploadDocModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4" x-cloak>
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative" @click.away="uploadDocModal = false">
+<div x-show="uploadDocModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4 sm:p-6" x-cloak>
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto" @click.away="uploadDocModal = false">
         <button @click="uploadDocModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-xl"></i></button>
         
         <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Upload Foto Dokumentasi</h3>
@@ -16,19 +16,20 @@
                     </div>
                 </div>
             @else
-                <div x-data="{ anon: false }" class="bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                <div x-data="{ anon: false }" class="bg-gray-50 border border-gray-200 p-3 rounded-lg transition-all duration-300">
                     <div class="flex items-center mb-2">
                         <input type="checkbox" id="anonCheckDoc" name="is_anonymous" x-model="anon" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="anonCheckDoc" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer">Posting sebagai Anonim (Tanpa Login)</label>
+                        <label for="anonCheckDoc" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer select-none">
+                            Posting sebagai Anonim (Tanpa Login)
+                        </label>
                     </div>
                     
-                    <div x-show="anon" x-transition class="mt-2">
-                        <label class="block text-xs text-gray-500 mb-1">Nama Samaran (Opsional)</label>
-                        <input type="text" name="author_name_anon" placeholder="Contoh: Peserta Magang X" class="w-full border p-2 rounded text-sm focus:ring-blue-500 focus:border-blue-500">
+                    <div x-show="!anon" class="text-xs text-gray-500 mt-1 pl-6">
+                        * Centang box di atas untuk menyembunyikan identitas Anda.
                     </div>
 
-                    <div x-show="!anon" class="mt-2 text-red-500 text-xs flex items-center">
-                        <i class="fas fa-exclamation-circle mr-1"></i> Wajib login atau centang Anonim untuk upload.
+                    <div x-show="anon" x-transition class="mt-2 pl-6 text-sm text-green-600 font-semibold flex items-center">
+                        <i class="fas fa-user-secret mr-2"></i> Nama Anda akan diset otomatis menjadi "Anonim".
                     </div>
                 </div>
             @endauth
@@ -55,8 +56,8 @@
     </div>
 </div>
 
-<div x-show="uploadProjectModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4" x-cloak>
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative" @click.away="uploadProjectModal = false">
+<div x-show="uploadProjectModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4 sm:p-6" x-cloak>
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto" @click.away="uploadProjectModal = false">
         <button @click="uploadProjectModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-xl"></i></button>
         
         <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Upload Projek Web</h3>
@@ -73,18 +74,20 @@
                     </div>
                 </div>
             @else
-                <div x-data="{ anon: false }" class="bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                <div x-data="{ anon: false }" class="bg-gray-50 border border-gray-200 p-3 rounded-lg transition-all duration-300">
                     <div class="flex items-center mb-2">
                         <input type="checkbox" id="anonCheckProj" name="is_anonymous" x-model="anon" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                        <label for="anonCheckProj" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer">Posting sebagai Anonim (Tanpa Login)</label>
+                        <label for="anonCheckProj" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer select-none">
+                            Posting sebagai Anonim (Tanpa Login)
+                        </label>
                     </div>
                     
-                    <div x-show="anon" x-transition class="mt-2">
-                        <label class="block text-xs text-gray-500 mb-1">Nama Samaran (Opsional)</label>
-                        <input type="text" name="author_name_anon" placeholder="Contoh: Tim Magang A" class="w-full border p-2 rounded text-sm focus:ring-green-500 focus:border-green-500">
+                    <div x-show="!anon" class="text-xs text-gray-500 mt-1 pl-6">
+                        * Centang box di atas untuk menyembunyikan identitas Anda.
                     </div>
-                    <div x-show="!anon" class="mt-2 text-red-500 text-xs flex items-center">
-                        <i class="fas fa-exclamation-circle mr-1"></i> Wajib login atau centang Anonim.
+
+                    <div x-show="anon" x-transition class="mt-2 pl-6 text-sm text-green-600 font-semibold flex items-center">
+                        <i class="fas fa-user-secret mr-2"></i> Nama Pengembang akan diset otomatis menjadi "Anonim".
                     </div>
                 </div>
             @endauth
@@ -153,8 +156,8 @@
     </div>
 </div>
 
-<div x-show="editDocModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4" x-cloak>
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative" @click.away="editDocModal = false">
+<div x-show="editDocModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4 sm:p-6" x-cloak>
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto" @click.away="editDocModal = false">
         <button @click="editDocModal = false" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
         <h3 class="text-xl font-bold mb-4">Edit Dokumentasi</h3>
         <form :action="'/doc/update/' + selectedItem.id" method="POST" enctype="multipart/form-data" class="space-y-4">
@@ -170,8 +173,8 @@
     </div>
 </div>
 
-<div x-show="editProjectModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4" x-cloak>
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative" @click.away="editProjectModal = false">
+<div x-show="editProjectModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4 sm:p-6" x-cloak>
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto" @click.away="editProjectModal = false">
         <button @click="editProjectModal = false" class="absolute top-4 right-4 text-gray-400"><i class="fas fa-times"></i></button>
         <h3 class="text-xl font-bold mb-4">Edit Projek</h3>
         <form :action="'/project/update/' + selectedItem.id" method="POST" enctype="multipart/form-data" class="space-y-4">

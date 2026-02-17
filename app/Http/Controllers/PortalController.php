@@ -80,6 +80,7 @@ class PortalController extends Controller
     // ================== CRUD UTAMA (Upload) ==================
     
     // Helper: Menentukan status & path gambar
+    // Helper: Menentukan status & path gambar
     private function prepareUploadData(Request $request) {
         if (Auth::check()) {
             $user = Auth::user();
@@ -97,9 +98,13 @@ class PortalController extends Controller
             if (!$request->has('is_anonymous')) {
                 abort(403, 'Akses ditolak.');
             }
+            
+            // UPDATE: Jika nama kosong, otomatis "Anonim"
+            $anonName = $request->filled('author_name_anon') ? $request->author_name_anon : 'Anonim';
+
             return [
                 'user_id' => null,
-                'author_name' => $request->author_name_anon ?? 'Anonim',
+                'author_name' => $anonName,
                 'status' => 'pending',
                 'msg' => 'Upload Anonim berhasil! Menunggu persetujuan Admin.'
             ];

@@ -46,9 +46,13 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init();
+        // UPDATE: once: true agar animasi tidak berulang saat scroll naik turun
+        AOS.init({
+            once: true, 
+            duration: 800,
+        });
         
-        // SweetAlert Trigger
+        // SweetAlert Trigger (Tetap sama)
         @if(session('success'))
             Swal.fire({ icon: 'success', title: 'Berhasil', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false });
         @endif
