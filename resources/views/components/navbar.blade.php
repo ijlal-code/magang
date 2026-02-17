@@ -35,7 +35,7 @@
                     <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-blue-700 focus:outline-none transition bg-gray-100 px-4 py-2 rounded-full border border-gray-200">
                            @if(Auth::user()->role === 'admin')
-    <a href="{{ route('admin.users') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+    <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
         <i class="fas fa-users-cog mr-2 text-blue-500"></i> Kelola User
     </a>
     @else
