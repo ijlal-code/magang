@@ -116,6 +116,7 @@
 
     @include('components.gallery')
     @include('components.projects')
+    @include('components.about')
     @include('components.footer')
 
     @include('components.modals-auth')

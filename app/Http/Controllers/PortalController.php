@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Documentation;
 use App\Models\Project;
 use App\Models\User;
-use App\Models\SystemSetting; // Tambahkan Model Setting
+use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -57,8 +57,6 @@ class PortalController extends Controller
             'password' => 'required|min:6|confirmed'
         ]);
 
-        // LOGIC BARU: Cek Setting Database untuk User Baru
-        // Ambil setting, default '0' (tidak butuh approval) jika tidak ada di DB
         $setting = SystemSetting::where('key', 'new_user_needs_approval')->first();
         $needsApproval = $setting ? ($setting->value == '1') : false;
 
@@ -67,7 +65,7 @@ class PortalController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'user',
-            'can_post_directly' => !$needsApproval // Jika butuh approval, maka FALSE
+            'can_post_directly' => !$needsApproval
         ]);
 
         Auth::login($user);
@@ -83,8 +81,6 @@ class PortalController extends Controller
         $credentials = $request->validate(['email' => 'required|email', 'password' => 'required']);
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
-            // Redirect admin langsung ke dashboard setting
             if(Auth::user()->role === 'admin') {
                 return redirect()->route('home')->with('success', 'Selamat datang Admin!');
             }
@@ -104,7 +100,6 @@ class PortalController extends Controller
 
     private function prepareUploadData(Request $request) {
         if (Auth::check()) {
-            // User Login
             $user = Auth::user();
             $status = ($user->role === 'admin' || $user->can_post_directly) ? 'approved' : 'pending';
             
@@ -115,12 +110,9 @@ class PortalController extends Controller
                 'msg' => ($status == 'approved') ? 'Berhasil upload dan tayang!' : 'Menunggu persetujuan Admin.'
             ];
         } else {
-            // GUEST / ANONIM
             $anonName = $request->filled('author_name_anon') ? $request->author_name_anon : 'Anonim';
-            
-            // LOGIC BARU: Cek Setting Database untuk Anonim
             $setting = SystemSetting::where('key', 'anon_needs_approval')->first();
-            $needsApproval = $setting ? ($setting->value == '1') : false; // Default False (Langsung Tayang)
+            $needsApproval = $setting ? ($setting->value == '1') : false;
 
             $status = $needsApproval ? 'pending' : 'approved';
             $msg = $needsApproval ? 'Upload berhasil! Menunggu persetujuan Admin.' : 'Upload berhasil dan langsung tayang!';
@@ -140,7 +132,8 @@ class PortalController extends Controller
     }
 
     public function storeDoc(Request $request) {
-        $request->validate(['title'=>'required', 'image'=>'required|image', 'description'=>'required']);
+        // PERUBAHAN DISINI: max:5120 (5MB)
+        $request->validate(['title'=>'required', 'image'=>'required|image|max:5120', 'description'=>'required']);
         $data = $this->prepareUploadData($request);
         $imagePath = $this->storeImage($request->file('image'), 'docs');
 
@@ -156,7 +149,8 @@ class PortalController extends Controller
     }
 
     public function storeProject(Request $request) {
-        $request->validate(['title'=>'required', 'project_url'=>'required', 'thumbnail'=>'required|image']);
+        // PERUBAHAN DISINI: max:5120 (5MB)
+        $request->validate(['title'=>'required', 'project_url'=>'required', 'thumbnail'=>'required|image|max:5120']);
         $data = $this->prepareUploadData($request);
         $thumbPath = $this->storeImage($request->file('thumbnail'), 'projects');
 
@@ -172,27 +166,40 @@ class PortalController extends Controller
         return back()->with('success', $data['msg']);
     }
 
-    // ================== EDIT & DELETE (Protected) ==================
-    // ... (Fungsi updateDoc, deleteDoc, updateProject, deleteProject SAMA SEPERTI SEBELUMNYA) ...
-    // Copy dari file sebelumnya untuk menghemat tempat, logic tidak berubah di sini.
+    // ================== EDIT & DELETE ==================
+
     public function updateDoc(Request $request, $id) {
         $doc = Documentation::findOrFail($id);
         if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $doc->user_id)) abort(403);
+        
+        // Validasi max 5MB jika ada gambar baru
+        $request->validate([
+            'image' => 'nullable|image|max:5120' 
+        ]);
+
         $doc->title = $request->title;
         $doc->description = $request->description;
         if ($request->hasFile('image')) $doc->image_path = $this->storeImage($request->file('image'), 'docs');
         $doc->save();
         return back()->with('success', 'Update berhasil.');
     }
+
     public function deleteDoc($id) {
         $doc = Documentation::findOrFail($id);
         if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $doc->user_id)) abort(403);
         $doc->delete();
         return back()->with('success', 'Dihapus.');
     }
+
     public function updateProject(Request $request, $id) { 
         $proj = Project::findOrFail($id);
         if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $proj->user_id)) abort(403);
+        
+        // Validasi max 5MB jika ada gambar baru
+        $request->validate([
+            'thumbnail' => 'nullable|image|max:5120'
+        ]);
+
         $proj->title = $request->title;
         $proj->project_url = $request->project_url;
         $proj->description = $request->description;
@@ -200,6 +207,7 @@ class PortalController extends Controller
         $proj->save();
         return back()->with('success', 'Updated.');
     }
+
     public function deleteProject($id) {
         $proj = Project::findOrFail($id);
         if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $proj->user_id)) abort(403);
@@ -207,99 +215,59 @@ class PortalController extends Controller
         return back()->with('success', 'Dihapus.');
     }
 
-    // ================== ADMIN SETTINGS & MANAGEMENT ==================
-
-    // 1. Dashboard Admin (Halaman Settings & Menu)
+    // ================== ADMIN SETTINGS (Sama seperti sebelumnya) ==================
     public function adminDashboard() {
         if (Auth::user()->role !== 'admin') abort(403);
-
-        // Ambil pengaturan saat ini
         $anonSetting = SystemSetting::where('key', 'anon_needs_approval')->first();
         $userSetting = SystemSetting::where('key', 'new_user_needs_approval')->first();
-
-        // Count pending anon items
         $pendingAnonDocs = Documentation::whereNull('user_id')->where('status', 'pending')->count();
         $pendingAnonProjs = Project::whereNull('user_id')->where('status', 'pending')->count();
         $totalPendingAnon = $pendingAnonDocs + $pendingAnonProjs;
-
         return view('admin.dashboard', compact('anonSetting', 'userSetting', 'totalPendingAnon'));
     }
 
-    // 2. Update Pengaturan Switch
     public function updateSettings(Request $request) {
         if (Auth::user()->role !== 'admin') abort(403);
-
-        // Update Setting Anonim
-        // Jika dicentang di form, value '1', jika tidak ada (unchecked), value '0'
-        SystemSetting::updateOrCreate(
-            ['key' => 'anon_needs_approval'],
-            ['value' => $request->has('anon_needs_approval') ? '1' : '0']
-        );
-
-        // Update Setting User Baru
-        SystemSetting::updateOrCreate(
-            ['key' => 'new_user_needs_approval'],
-            ['value' => $request->has('new_user_needs_approval') ? '1' : '0']
-        );
-
+        SystemSetting::updateOrCreate(['key' => 'anon_needs_approval'], ['value' => $request->has('anon_needs_approval') ? '1' : '0']);
+        SystemSetting::updateOrCreate(['key' => 'new_user_needs_approval'], ['value' => $request->has('new_user_needs_approval') ? '1' : '0']);
         return back()->with('success', 'Pengaturan sistem berhasil diperbarui.');
     }
 
-    // 3. Halaman List Pending Anonim
     public function adminAnonPending() {
         if (Auth::user()->role !== 'admin') abort(403);
-
         $pendingDocs = Documentation::whereNull('user_id')->where('status', 'pending')->latest()->get();
         $pendingProjs = Project::whereNull('user_id')->where('status', 'pending')->latest()->get();
-
         return view('admin.anon-pending', compact('pendingDocs', 'pendingProjs'));
     }
 
-    // 4. Manajemen User (Existing)
     public function adminUsers(Request $request) {
         if (Auth::user()->role !== 'admin') abort(403);
         $query = User::where('role', '!=', 'admin');
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
             });
         }
         $users = $query->latest()->get();
         return view('admin.users', compact('users'));
     }
 
-    // 5. Bulk Action User (Existing)
     public function bulkUserAction(Request $request) {
         if (Auth::user()->role !== 'admin') abort(403);
         $ids = $request->ids;
         $action = $request->action;
-
         if (empty($ids)) return back()->with('error', 'Pilih user dulu.');
-
-        if ($action == 'restrict') {
-            User::whereIn('id', $ids)->update(['can_post_directly' => false]);
-            return back()->with('success', 'User dibatasi.');
-        }
-        if ($action == 'allow') {
-            User::whereIn('id', $ids)->update(['can_post_directly' => true]);
-            return back()->with('success', 'User dibebaskan.');
-        }
-        if ($action == 'delete') {
-            User::destroy($ids);
-            return back()->with('success', 'User dihapus.');
-        }
+        if ($action == 'restrict') { User::whereIn('id', $ids)->update(['can_post_directly' => false]); return back()->with('success', 'User dibatasi.'); }
+        if ($action == 'allow') { User::whereIn('id', $ids)->update(['can_post_directly' => true]); return back()->with('success', 'User dibebaskan.'); }
+        if ($action == 'delete') { User::destroy($ids); return back()->with('success', 'User dihapus.'); }
         return back();
     }
 
-    // 6. Approve Logic
     public function approveItem($type, $id) {
         if (Auth::user()->role !== 'admin') abort(403);
-        
         if($type == 'doc') Documentation::find($id)->update(['status' => 'approved']);
         if($type == 'project') Project::find($id)->update(['status' => 'approved']);
-        
         return back()->with('success', 'Item disetujui.');
     }
 

@@ -1,44 +1,87 @@
-<section id="about" class="py-24 bg-white overflow-hidden">
+<section id="about" class="py-24 bg-white overflow-hidden relative">
+    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-brand-light/30 blur-3xl opacity-60 pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-brand-primary/10 blur-3xl opacity-60 pointer-events-none"></div>
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row items-center gap-16">
             
-            <div class="md:w-1/2 relative" data-aos="fade-right">
-                <div class="absolute -top-4 -left-4 w-24 h-24 bg-blue-100 rounded-full z-0"></div>
-                <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-green-100 rounded-full z-0"></div>
-                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                     alt="Tim Magang Tonasa" 
-                     class="relative z-10 rounded-2xl shadow-2xl hover:scale-[1.02] transition duration-500 transform">
-            </div>
-
-            <div class="md:w-1/2" data-aos="fade-left">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 border-l-8 border-blue-600 pl-6">
-                    Tentang Program Magang
-                </h2>
+            <div class="md:w-1/2 flex justify-center relative" data-aos="fade-right">
                 
-                <p class="text-lg text-gray-600 leading-relaxed mb-6">
-                    Selamat datang di Portal Magang <span class="font-bold text-blue-800">PT Semen Tonasa</span>. 
-                    Wadah ini dibuat khusus untuk memfasilitasi kreativitas dan inovasi para peserta magang dalam mendokumentasikan kegiatan serta memamerkan hasil karya digital mereka.
-                </p>
+                <div class="profile-card w-[300px] rounded-2xl shadow-2xl overflow-hidden z-20 relative cursor-pointer snap-start shrink-0 bg-white flex flex-col items-center justify-center gap-3 transition-all duration-300 group border border-gray-100 hover:shadow-brand-primary/20">
+                    
+                    <div class="avatar w-full pt-8 flex items-center justify-center flex-col gap-1">
+                        <div class="img_container w-full flex items-center justify-center relative z-40 after:absolute after:h-[6px] after:w-full after:bg-brand-primary after:top-4 after:group-hover:size-[1%] after:delay-300 after:group-hover:delay-0 after:group-hover:transition-all after:group-hover:duration-300 after:transition-all after:duration-300 before:absolute before:h-[6px] before:w-full before:bg-brand-primary before:bottom-4 before:group-hover:size-[1%] before:delay-300 before:group-hover:delay-0 before:group-hover:transition-all before:group-hover:duration-300 before:transition-all before:duration-300">
+                            
+                            <div class="size-36 z-40 border-4 border-white rounded-full bg-brand-light flex items-center justify-center group-hover:border-8 group-hover:border-brand-light/50 group-hover:transition-all group-hover:duration-300 transition-all duration-300 shadow-lg">
+                                <span class="text-6xl font-extrabold text-brand-dark tracking-tighter">AI</span>
+                            </div>
 
-                <div class="space-y-4">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                            <i class="fas fa-bullseye text-xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="text-lg font-bold text-gray-900">Visi Kami</h4>
-                            <p class="text-gray-500">Mencetak talenta muda yang siap bersaing di era industri 4.0.</p>
+                            <div class="absolute bg-brand-primary z-10 size-[60%] w-full group-hover:size-[1%] group-hover:transition-all group-hover:duration-300 transition-all duration-300 delay-700 group-hover:delay-0"></div>
                         </div>
                     </div>
 
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-green-100 text-green-600">
+                    <div class="headings *:text-center *:leading-4 mt-2">
+                        <p class="text-xl font-serif font-bold text-brand-dark tracking-wide">AINUN IJLAL</p>
+                        <p class="text-xs font-bold text-brand-primary tracking-widest uppercase mt-1">Fullstack Developer</p>
+                    </div>
+
+                    <div class="w-full items-center justify-center flex mt-2">
+                        <ul class="flex flex-col items-start gap-2 has-[:last]:border-b-0 *:inline-flex *:gap-2 *:items-center *:justify-center *:border-b-[1.5px] *:border-b-brand-light/50 *:border-dotted *:text-xs *:font-semibold *:text-gray-600 pb-6 px-8 w-full">
+                            <li class="w-full">
+                                <i class="fas fa-code text-brand-dark group-hover:text-brand-primary transition-colors"></i>
+                                <p>Laravel & Tailwind Expert</p>
+                            </li>
+                            <li class="w-full">
+                                <i class="fas fa-envelope text-brand-dark group-hover:text-brand-primary transition-colors"></i>
+                                <p>ainun.ijlal@tonasa.co.id</p>
+                            </li>
+                            <li class="w-full">
+                                <i class="fas fa-globe text-brand-dark group-hover:text-brand-primary transition-colors"></i>
+                                <p>magang.sementonasa.com</p>
+                            </li>
+                            <li class="w-full border-none">
+                                <i class="fas fa-map-marker-alt text-brand-dark group-hover:text-brand-primary transition-colors"></i>
+                                <p>Pangkep, Sulawesi Selatan</p>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <hr class="w-full group-hover:h-3 h-2 bg-brand-primary group-hover:transition-all group-hover:duration-300 transition-all duration-300" />
+                </div>
+                <div class="absolute inset-0 bg-brand-accent/20 blur-2xl rounded-full transform scale-90 translate-y-4 -z-10"></div>
+            </div>
+
+            <div class="md:w-1/2" data-aos="fade-left">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-light/30 border border-brand-light/50 text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">
+                    <span class="w-2 h-2 rounded-full bg-brand-primary animate-pulse"></span>
+                    About The Program
+                </div>
+
+                <h2 class="text-3xl md:text-4xl font-bold text-brand-dark mb-6 leading-tight">
+                    Membangun Masa Depan <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">Lewat Inovasi Digital</span>
+                </h2>
+                
+                <p class="text-lg text-gray-600 leading-relaxed mb-8">
+                    Portal ini didedikasikan untuk menampilkan karya terbaik dari peserta magang <span class="font-bold text-brand-dark">PT Semen Tonasa</span>. 
+                    Kami percaya bahwa kolaborasi antara industri dan talenta muda akan melahirkan solusi yang kreatif dan berdampak nyata.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="p-4 rounded-xl bg-brand-bg border border-brand-light/30 hover:shadow-lg transition duration-300 group">
+                        <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-brand-primary shadow-sm mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-bullseye text-xl"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-brand-dark mb-1">Visi Kami</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed">Mencetak talenta muda yang siap bersaing di era industri 4.0.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-brand-bg border border-brand-light/30 hover:shadow-lg transition duration-300 group">
+                        <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-brand-secondary shadow-sm mb-4 group-hover:scale-110 transition">
                             <i class="fas fa-laptop-code text-xl"></i>
                         </div>
-                        <div class="ml-4">
-                            <h4 class="text-lg font-bold text-gray-900">Inovasi Digital</h4>
-                            <p class="text-gray-500">Mendorong pembuatan solusi teknologi tepat guna.</p>
-                        </div>
+                        <h4 class="text-lg font-bold text-brand-dark mb-1">Inovasi Digital</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed">Mendorong pembuatan solusi teknologi tepat guna.</p>
                     </div>
                 </div>
             </div>
