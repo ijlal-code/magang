@@ -86,7 +86,7 @@ class PortalController extends Controller
             
             // Redirect admin langsung ke dashboard setting
             if(Auth::user()->role === 'admin') {
-                return redirect()->route('admin.dashboard')->with('success', 'Selamat datang Admin!');
+                return redirect()->route('home')->with('success', 'Selamat datang Admin!');
             }
             return redirect()->route('home')->with('success', 'Selamat datang!');
         }

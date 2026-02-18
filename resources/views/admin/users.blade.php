@@ -13,7 +13,7 @@
     <div class="bg-white shadow-sm border-b sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-xl font-bold text-blue-900">
-                <a href="{{ route('home') }}" class="hover:underline"><i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard</a>
+                <a href="{{ route('admin.dashboard') }}" class="hover:underline"><i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard</a>
             </h1>
             <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">Admin Area</span>
         </div>

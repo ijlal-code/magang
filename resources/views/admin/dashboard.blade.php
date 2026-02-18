@@ -9,7 +9,12 @@
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
 
-    @include('components.navbar')
+          <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-900">
+                <a href="{{ route('home') }}" class="hover:underline"><i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard</a>
+            </h1>
+            <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">Admin Area</span>
+        </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-20">
         

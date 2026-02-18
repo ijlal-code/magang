@@ -9,15 +9,17 @@
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
 
-    @include('components.navbar')
+<div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-900">
+                <a href="{{ route('admin.dashboard') }}" class="hover:underline"><i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard</a>
+            </h1>
+            <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">Admin Area</span>
+        </div>   
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-20">
         
         <div class="flex items-center justify-between mb-8">
-            <h1 class="text-2xl font-bold">
-                <a href="{{ route('admin.dashboard') }}" class="text-gray-400 hover:text-blue-600 mr-2"><i class="fas fa-arrow-left"></i></a>
-                Approval Postingan Anonim
-            </h1>
+           
             <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold border border-orange-200">
                 Pending: {{ $pendingDocs->count() + $pendingProjs->count() }}
             </span>
