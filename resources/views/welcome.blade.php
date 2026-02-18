@@ -5,27 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magang Tonasa</title>
     
-   <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#042940',      /* Navy Blue - Footer, Headings */
+                            primary: '#005C53',   /* Deep Teal - Main Brand Color */
+                            secondary: '#9FC131', /* Muted Lime - Hover states */
+                            accent: '#DBF227',    /* Bright Neon - CTA, Highlights */
+                            light: '#D6D58E',     /* Pale Yellow - Subtle Backgrounds */
+                            bg: '#F8FAF9',        /* Very light tint for body bg */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <style>
+        body { font-family: 'Inter', sans-serif; }
+        
         .hero-bg {
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1581094794329-cd56b5095a8e?auto=format&fit=crop&w=1950&q=80');
+            /* Menggunakan Gradient Overlay dari warna tema Anda */
+            background: linear-gradient(to bottom right, rgba(4, 41, 64, 0.85), rgba(0, 92, 83, 0.75)), url('https://images.unsplash.com/photo-1581094794329-cd56b5095a8e?auto=format&fit=crop&w=1950&q=80');
             background-size: cover; background-position: center; background-attachment: fixed;
         }
         [x-cloak] { display: none !important; }
         
-        /* Fix untuk Background attachment di iPhone */
         @supports (-webkit-touch-callout: none) {
             .hero-bg { background-attachment: scroll; }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased" x-data="{ 
+<body class="bg-brand-bg text-brand-dark font-sans antialiased" x-data="{ 
     loginModal: false, 
     registerModal: false, 
     uploadDocModal: false, 
@@ -39,50 +63,57 @@
     @include('components.navbar')
 
     <section id="home" class="min-h-screen hero-bg flex items-center justify-center text-white relative px-4 pt-20">
-        <div class="relative z-10 text-center max-w-4xl mx-auto" data-aos="fade-up" data-aos-duration="800">
+        <div class="absolute top-20 left-10 w-32 h-32 bg-brand-accent opacity-20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-10 w-40 h-40 bg-brand-secondary opacity-20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+
+        <div class="relative z-10 text-center max-w-5xl mx-auto" data-aos="fade-up" data-aos-duration="800">
             
-            <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 drop-shadow-xl tracking-tight leading-tight">
-                Inovasi Magang <span class="text-blue-400">Tonasa</span>
+            <div class="inline-block mb-4 px-4 py-1.5 rounded-full border border-brand-accent/30 bg-brand-dark/30 backdrop-blur-sm">
+                <span class="text-brand-accent text-sm font-semibold tracking-wide uppercase">Official Portal</span>
+            </div>
+
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 drop-shadow-2xl tracking-tight leading-tight text-white">
+                Inovasi Magang <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-secondary">Tonasa</span>
             </h1>
             
-            <p class="text-base sm:text-lg md:text-2xl mb-8 font-light text-gray-200 leading-relaxed max-w-2xl mx-auto px-2">
-                Wadah kolaborasi digital untuk mendokumentasikan kegiatan dan memamerkan karya inovatif peserta magang.
+            <p class="text-base sm:text-lg md:text-xl mb-10 font-light text-gray-100 leading-relaxed max-w-2xl mx-auto px-2 opacity-90">
+                Platform kolaborasi digital untuk mendokumentasikan kegiatan dan memamerkan karya inovatif peserta magang di lingkungan PT Semen Tonasa.
             </p>
 
             @guest
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-4">
                     <button @click="registerModal = true" 
-                            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-8 rounded-full 
-                                   shadow-lg transform transition-all duration-200 ease-out 
-                                   hover:scale-105 active:scale-95 hover:shadow-blue-500/50">
-                        Daftar Sekarang
+                            class="w-full sm:w-auto bg-brand-accent hover:bg-brand-secondary text-brand-dark font-bold py-4 px-8 rounded-full 
+                                   shadow-[0_0_20px_rgba(219,242,39,0.3)] transform transition-all duration-300 ease-out 
+                                   hover:scale-105 active:scale-95">
+                        Daftar Sekarang <i class="fas fa-arrow-right ml-2"></i>
                     </button>
 
                     <button @click="loginModal = true" 
-                            class="w-full sm:w-auto bg-transparent border-2 border-white text-white font-bold py-3.5 px-8 rounded-full 
-                                   shadow-lg transform transition-all duration-200 ease-out 
-                                   hover:bg-white hover:text-blue-900 hover:scale-105 active:scale-95">
+                            class="w-full sm:w-auto bg-white/10 backdrop-blur-md border border-white/30 text-white font-semibold py-4 px-8 rounded-full 
+                                   hover:bg-brand-dark/50 hover:border-brand-accent hover:text-brand-accent transition-all duration-300">
                         Masuk Akun
                     </button>
                 </div>
             @else
-                <div class="inline-block bg-white/10 backdrop-blur-md rounded-full px-6 py-2 border border-white/20 mb-8">
+                <div class="inline-block bg-brand-dark/40 backdrop-blur-md rounded-2xl px-8 py-4 border border-brand-accent/20 mb-8 shadow-lg">
                     <p class="text-base sm:text-lg text-white">
-                        Hai, <span class="font-bold text-yellow-300">{{ Auth::user()->name }}</span>! 👋
+                        Selamat datang kembali, <span class="font-bold text-brand-accent">{{ Auth::user()->name }}</span>! 👋
                     </p>
                 </div>
                 
-                <div class="animate-bounce">
-                    <a href="#gallery" class="text-white hover:text-blue-400 transition duration-200 flex flex-col items-center gap-2">
-                        <span class="text-sm font-medium">Mulai Jelajahi</span>
-                        <i class="fas fa-chevron-down text-xl"></i>
+                <div class="animate-bounce mt-4">
+                    <a href="#gallery" class="text-white/80 hover:text-brand-accent transition duration-300 flex flex-col items-center gap-2 group">
+                        <span class="text-sm font-medium tracking-widest uppercase text-xs">Mulai Jelajahi</span>
+                        <div class="p-2 rounded-full border border-white/20 group-hover:border-brand-accent transition">
+                            <i class="fas fa-chevron-down text-lg"></i>
+                        </div>
                     </a>
                 </div>
             @endguest
         </div>
     </section>
 
-   
     @include('components.gallery')
     @include('components.projects')
     @include('components.footer')
@@ -93,23 +124,18 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         window.addEventListener('load', function() {
-            AOS.init({
-                once: true, 
-                duration: 800,
-                offset: 50,
-            });
+            AOS.init({ once: true, duration: 800, offset: 50 });
         });
 
-        // SweetAlert Feedback
         @if(session('success'))
             Swal.fire({ 
                 icon: 'success', 
                 title: 'Berhasil', 
                 text: "{{ session('success') }}", 
                 timer: 3000, 
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end'
+                showConfirmButton: false, 
+                background: '#fff',
+                iconColor: '#005C53'
             });
         @endif
         @if(session('error'))
