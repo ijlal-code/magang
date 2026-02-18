@@ -82,7 +82,7 @@
         </div>
     </section>
 
-    @include('components.about')
+   
     @include('components.gallery')
     @include('components.projects')
     @include('components.footer')

@@ -15,7 +15,7 @@
             </div>
 
             <div class="hidden md:flex space-x-8 items-center">
-                <a href="{{ route('home') }}" class="text-gray-600 hover:text-blue-600 font-medium transition {{ request()->routeIs('home') ? 'text-blue-600' : '' }}">Beranda</a>
+                <a href="#home" class="text-gray-600 hover:text-blue-600 font-medium transition {{ request()->routeIs('home') ? 'text-blue-600' : '' }}">Beranda</a>
                 <a href="#gallery" class="text-gray-600 hover:text-blue-600 font-medium transition">Galeri</a>
                 <a href="#projects" class="text-gray-600 hover:text-blue-600 font-medium transition">Projek</a>
                 
