@@ -18,7 +18,6 @@ class PortalController extends Controller
     {
         $isAdmin = Auth::check() && Auth::user()->role === 'admin';
 
-        // Tampilkan item yang di-pin lebih dulu (is_pinned desc), lalu berdasarkan waktu (latest)
         if ($isAdmin) {
             $docs = Documentation::orderByDesc('is_pinned')->latest()->take(6)->get();
             $projects = Project::orderByDesc('is_pinned')->latest()->take(6)->get();
@@ -145,7 +144,8 @@ class PortalController extends Controller
     }
 
     public function storeDoc(Request $request) {
-        $request->validate(['title'=>'required', 'image'=>'required|image|max:5120', 'description'=>'required']);
+        // Ditambahkan mimes:png,jpg,jpeg
+        $request->validate(['title'=>'required', 'image'=>'required|image|mimes:png,jpg,jpeg|max:5120', 'description'=>'required']);
         $data = $this->prepareUploadData($request);
         $imagePath = $this->storeImage($request->file('image'), 'docs');
 
@@ -157,11 +157,13 @@ class PortalController extends Controller
             'image_path' => $imagePath,
             'status' => $data['status']
         ]);
+
         return back()->with('success', $data['msg']);
     }
 
     public function storeProject(Request $request) {
-        $request->validate(['title'=>'required', 'project_url'=>'required', 'thumbnail'=>'required|image|max:5120']);
+        // Ditambahkan mimes:png,jpg,jpeg
+        $request->validate(['title'=>'required', 'project_url'=>'required', 'thumbnail'=>'required|image|mimes:png,jpg,jpeg|max:5120']);
         $data = $this->prepareUploadData($request);
         $thumbPath = $this->storeImage($request->file('thumbnail'), 'projects');
 
@@ -174,6 +176,7 @@ class PortalController extends Controller
             'thumbnail_path' => $thumbPath,
             'status' => $data['status']
         ]);
+
         return back()->with('success', $data['msg']);
     }
 
@@ -181,9 +184,14 @@ class PortalController extends Controller
 
     public function updateDoc(Request $request, $id) {
         $doc = Documentation::findOrFail($id);
-        if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $doc->user_id)) abort(403);
         
-        $request->validate(['image' => 'nullable|image|max:5120']);
+        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
+        $isOwner = Auth::check() && !is_null($doc->user_id) && Auth::id() == $doc->user_id;
+
+        if (!$isAdmin && !$isOwner) abort(403);
+        
+        // Ditambahkan mimes:png,jpg,jpeg
+        $request->validate(['image' => 'nullable|image|mimes:png,jpg,jpeg|max:5120']);
 
         $doc->title = $request->title;
         $doc->description = $request->description;
@@ -194,16 +202,26 @@ class PortalController extends Controller
 
     public function deleteDoc($id) {
         $doc = Documentation::findOrFail($id);
-        if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $doc->user_id)) abort(403);
+        
+        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
+        $isOwner = Auth::check() && !is_null($doc->user_id) && Auth::id() == $doc->user_id;
+
+        if (!$isAdmin && !$isOwner) abort(403);
+
         $doc->delete();
         return back()->with('success', 'Dihapus.');
     }
 
     public function updateProject(Request $request, $id) { 
         $proj = Project::findOrFail($id);
-        if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $proj->user_id)) abort(403);
         
-        $request->validate(['thumbnail' => 'nullable|image|max:5120']);
+        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
+        $isOwner = Auth::check() && !is_null($proj->user_id) && Auth::id() == $proj->user_id;
+
+        if (!$isAdmin && !$isOwner) abort(403);
+        
+        // Ditambahkan mimes:png,jpg,jpeg
+        $request->validate(['thumbnail' => 'nullable|image|mimes:png,jpg,jpeg|max:5120']);
 
         $proj->title = $request->title;
         $proj->project_url = $request->project_url;
@@ -215,7 +233,12 @@ class PortalController extends Controller
 
     public function deleteProject($id) {
         $proj = Project::findOrFail($id);
-        if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $proj->user_id)) abort(403);
+        
+        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
+        $isOwner = Auth::check() && !is_null($proj->user_id) && Auth::id() == $proj->user_id;
+
+        if (!$isAdmin && !$isOwner) abort(403);
+
         $proj->delete();
         return back()->with('success', 'Dihapus.');
     }
@@ -282,7 +305,6 @@ class PortalController extends Controller
         return back()->with('success', 'User dihapus.');
     }
 
-    // ================== NEW FEATURE: KELOLA ITEM (PIN/UNPIN) ==================
     public function adminManageItems(Request $request) {
         if (Auth::user()->role !== 'admin') abort(403);
         
@@ -291,7 +313,6 @@ class PortalController extends Controller
         $docQuery = Documentation::query();
         $projQuery = Project::query();
 
-        // Fitur Pencarian 
         if ($search) {
             $docQuery->where(function($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
@@ -303,7 +324,6 @@ class PortalController extends Controller
             });
         }
 
-        // Ambil data dengan Pagination terpisah agar rapi (diurutkan berdasarkan pin lalu terbaru)
         $docs = $docQuery->orderByDesc('is_pinned')->latest()->paginate(10, ['*'], 'doc_page');
         $projects = $projQuery->orderByDesc('is_pinned')->latest()->paginate(10, ['*'], 'proj_page');
 
