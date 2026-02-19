@@ -22,20 +22,23 @@
 
                     <div class="headings *:text-center *:leading-4 mt-4 mb-2">
                         <p class="text-xl font-serif font-bold text-brand-dark tracking-wide">AINUN IJLAL</p>
-                        </div>
+                    </div>
 
                     <div class="w-full items-center justify-center flex mt-2">
                         <ul class="flex flex-col items-start gap-2 has-[:last]:border-b-0 *:inline-flex *:gap-2 *:items-center *:justify-center *:border-b-[1.5px] *:border-b-brand-light/50 *:border-dotted *:text-xs *:font-semibold *:text-gray-600 pb-6 px-8 w-full">
                             
-                            <li class="w-full">
-                                <i class="fas fa-phone text-brand-dark group-hover:text-brand-primary transition-colors"></i>
-                                <p>+62 853-9747-6205</p>
+                            <li class="w-full !p-0">
+                                <a href="https://wa.me/6285397476205" target="_blank" class="flex items-center justify-center gap-2 w-full py-1 hover:text-green-600 transition-colors group/link">
+                                    <i class="fab fa-whatsapp text-brand-dark group-hover/link:text-green-600 transition-colors text-sm"></i>
+                                    <span>+62 853-9747-6205</span>
+                                </a>
                             </li>
 
-                            <li class="w-full">
+                              <li class="w-full">
                                 <i class="fas fa-envelope text-brand-dark group-hover:text-brand-primary transition-colors"></i>
                                 <p>ijlalainun@gmail.com</p>
                             </li>
+
                             <li class="w-full">
                                 <i class="fas fa-globe text-brand-dark group-hover:text-brand-primary transition-colors"></i>
                                 <p>magang.sementonasa.com</p>
@@ -56,7 +59,8 @@
             <div class="md:w-1/2" data-aos="fade-left">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-light/30 border border-brand-light/50 text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">
                     <span class="w-2 h-2 rounded-full bg-brand-primary animate-pulse"></span>
-                    About </div>
+                    About 
+                </div>
 
                 <h2 class="text-3xl md:text-4xl font-bold text-brand-dark mb-6 leading-tight">
                     Berkarya Sambil Belajar <br>
@@ -68,7 +72,7 @@
                         Halo! Website ini dibangun oleh seorang mahasiswa semester 6 yang menjalani proses magang. Tujuan utamanya adalah sebagai wadah pembelajaran sekaligus mendokumentasikan kegiatan nyata di lapangan.
                     </p>
                     <p>
-                        Pengembangan website ini memakan waktu, tenaga, dan kopi. Jika Anda merasa website ini bermanfaat atau ingin mendukung proses belajar saya, dukungan Anda sangat berarti!
+                        Jika Anda merasa website ini bermanfaat atau ingin mendukung proses belajar saya, dukungan Anda sangat berarti!
                     </p>
                 </div>
 

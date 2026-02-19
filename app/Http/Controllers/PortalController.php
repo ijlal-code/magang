@@ -98,8 +98,14 @@ class PortalController extends Controller
 
     // ================== CRUD UTAMA (Upload) ==================
 
+    // ================== CRUD UTAMA (Upload) ==================
+
     private function prepareUploadData(Request $request) {
-        if (Auth::check()) {
+        // Cek apakah user menceklis kotak anonim
+        $isAnonymous = $request->has('is_anonymous');
+
+        if (Auth::check() && !$isAnonymous) {
+            // User sudah login dan TIDAK menceklis kotak anonim
             $user = Auth::user();
             $status = ($user->role === 'admin' || $user->can_post_directly) ? 'approved' : 'pending';
             
@@ -110,15 +116,17 @@ class PortalController extends Controller
                 'msg' => ($status == 'approved') ? 'Berhasil upload dan tayang!' : 'Menunggu persetujuan Admin.'
             ];
         } else {
-            $anonName = $request->filled('author_name_anon') ? $request->author_name_anon : 'Anonim';
+            // Berlaku untuk GUEST atau User Login yang menceklis kotak ANONIM
+            $anonName = 'Anonim';
             $setting = SystemSetting::where('key', 'anon_needs_approval')->first();
             $needsApproval = $setting ? ($setting->value == '1') : false;
 
             $status = $needsApproval ? 'pending' : 'approved';
-            $msg = $needsApproval ? 'Upload berhasil! Menunggu persetujuan Admin.' : 'Upload berhasil dan langsung tayang!';
+            $msg = $needsApproval ? 'Upload anonim berhasil! Menunggu persetujuan Admin.' : 'Upload anonim berhasil dan langsung tayang!';
 
             return [
-                'user_id' => null,
+                // Set null agar terbaca oleh sistem admin-pending untuk anonim
+                'user_id' => null, 
                 'author_name' => $anonName,
                 'status' => $status,
                 'msg' => $msg

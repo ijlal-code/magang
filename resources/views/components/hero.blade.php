@@ -4,11 +4,11 @@
     {{-- PERBAIKAN 1: Durasi AOS dikurangi dari 1000 ke 800 agar munculnya lebih sigap --}}
     <div class="relative z-10 text-center px-4 max-w-4xl mx-auto" data-aos="fade-up" data-aos-duration="800">
         <h1 class="text-5xl md:text-7xl font-extrabold mb-6 drop-shadow-lg tracking-tight">
-            Inovasi Magang <span class="text-green-400">Tonasa</span>
+            Magang <span class="text-green-400">Tonasa</span>
         </h1>
         
         <p class="text-xl md:text-2xl mb-8 font-light text-gray-200 leading-relaxed">
-            Wadah kolaborasi digital untuk mendokumentasikan kegiatan dan memamerkan karya inovatif peserta magang.
+            Wadah kolaborasi digital untuk mendokumentasikan kegiatan dan project peserta magang.
         </p>
 
         @guest

@@ -1,14 +1,17 @@
 <nav x-data="{ mobileMenuOpen: false, userDropdownOpen: false }" class="fixed w-full z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm border-b border-brand-light/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-24 items-center"> <div class="flex-shrink-0 flex items-center">
+        <div class="flex justify-between h-24 items-center">
+            
+            <div class="flex-shrink-0 flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center gap-3 group">
                     <div class="bg-brand-primary text-white w-10 h-10 flex items-center justify-center rounded-xl group-hover:bg-brand-dark transition-colors duration-300 shadow-lg shadow-brand-primary/20">
-                        <i class="fas fa-leaf text-lg"></i> </div>
+                        <i class="fas fa-industry text-lg"></i>
+                    </div>
                     <div class="flex flex-col">
                         <span class="font-bold text-xl leading-none text-brand-dark group-hover:text-brand-primary transition">
                             Magang<span class="text-brand-primary">Tonasa</span>
                         </span>
-                        <span class="text-[10px] uppercase tracking-wider text-gray-500 font-medium">Environmental Concept</span>
+                        
                     </div>
                 </a>
             </div>

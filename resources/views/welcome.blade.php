@@ -68,16 +68,14 @@
 
         <div class="relative z-10 text-center max-w-5xl mx-auto" data-aos="fade-up" data-aos-duration="800">
             
-            <div class="inline-block mb-4 px-4 py-1.5 rounded-full border border-brand-accent/30 bg-brand-dark/30 backdrop-blur-sm">
-                <span class="text-brand-accent text-sm font-semibold tracking-wide uppercase">Official Portal</span>
-            </div>
+            
 
             <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 drop-shadow-2xl tracking-tight leading-tight text-white">
-                Inovasi Magang <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-secondary">Tonasa</span>
+                 Magang <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-secondary">Tonasa</span>
             </h1>
             
             <p class="text-base sm:text-lg md:text-xl mb-10 font-light text-gray-100 leading-relaxed max-w-2xl mx-auto px-2 opacity-90">
-                Platform kolaborasi digital untuk mendokumentasikan kegiatan dan memamerkan karya inovatif peserta magang di lingkungan PT Semen Tonasa.
+                Platform kolaborasi digital untuk mendokumentasikan kegiatan dan project peserta magang di PT Semen Tonasa.
             </p>
 
             @guest
