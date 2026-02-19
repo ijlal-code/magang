@@ -4,16 +4,24 @@
         
         <h3 class="text-xl font-bold mb-4 text-brand-dark border-b border-brand-light/30 pb-2">Upload Foto Dokumentasi</h3>
         
-        <form action="{{ route('doc.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ errorMsg: '' }" @submit="
-            let file = $refs.fileInput.files[0];
-            if(file && file.size > 5242880) {
-                $event.preventDefault();
-                errorMsg = 'Peringatan: Ukuran foto melebihi batas 5MB!';
-            }
-        ">
+        <form action="{{ route('doc.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" 
+            x-data="{ errorMsg: '', anon: false, isGuest: {{ Auth::check() ? 'false' : 'true' }} }" 
+            @submit="
+                if (isGuest && !anon) {
+                    $event.preventDefault();
+                    errorMsg = 'Peringatan: Anda belum login! Silakan login atau centang \'Posting sebagai Anonim\' untuk melanjutkan.';
+                    return;
+                }
+                let file = $refs.fileInput.files[0];
+                if(file && file.size > 5242880) {
+                    $event.preventDefault();
+                    errorMsg = 'Peringatan: Ukuran foto melebihi batas 5MB!';
+                    return;
+                }
+            ">
             @csrf
             
-            <div x-data="{ anon: false }" class="space-y-3">
+            <div class="space-y-3">
                 @auth
                     <div x-show="!anon" x-transition class="bg-brand-primary/10 border border-brand-primary/20 p-3 rounded-xl flex items-center text-sm text-brand-dark">
                         <i class="fas fa-user-check mr-3 text-brand-primary text-lg"></i>
@@ -26,18 +34,24 @@
 
                 <div class="bg-gray-50 border border-gray-200 p-3 rounded-xl transition-all duration-300">
                     <div class="flex items-center mb-2">
-                        <input type="checkbox" id="anonCheckDoc" name="is_anonymous" x-model="anon" class="w-4 h-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary">
+                        <input type="checkbox" id="anonCheckDoc" name="is_anonymous" x-model="anon" @change="errorMsg = ''" class="w-4 h-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary">
                         <label for="anonCheckDoc" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer select-none">
-                            Posting sebagai Anonim {{ !Auth::check() ? '(Tanpa Login)' : '' }}
+                            Posting sebagai Anonim {{ !Auth::check() ? '(Wajib jika belum Login)' : '' }}
                         </label>
                     </div>
                     
-                    <div x-show="!anon" class="text-xs text-gray-500 mt-1 pl-6">
+                    <div x-show="!anon && !isGuest" class="text-xs text-gray-500 mt-1 pl-6">
                         * Centang box di atas untuk menyembunyikan identitas Anda.
                     </div>
 
-                    <div x-show="anon" x-transition class="mt-2 pl-6 text-sm text-brand-primary font-bold flex items-center">
-                        <i class="fas fa-user-secret mr-2"></i> Nama akan diset otomatis menjadi "Anonim".
+                    <div x-show="anon || isGuest" x-transition class="mt-2 pl-6">
+                        <p x-show="anon" class="text-sm text-brand-primary font-bold flex items-center mb-1.5">
+                            <i class="fas fa-user-secret mr-2"></i> Nama akan diset otomatis menjadi "Anonim".
+                        </p>
+                        <p class="text-xs text-red-500 bg-red-50 border border-red-100 p-2 rounded-lg font-semibold flex items-start leading-tight">
+                            <i class="fas fa-exclamation-triangle mr-2 mt-0.5"></i>
+                            Peringatan: Karena diunggah tanpa identitas akun, Anda TIDAK AKAN BISA mengedit atau menghapus foto ini di kemudian hari. Hubungi admin jika ingin menghapus atau edit
+                        </p>
                     </div>
                 </div>
             </div>
@@ -52,9 +66,6 @@
                     Foto Dokumentasi <span class="text-gray-400 text-xs font-normal ml-1">(Maksimal: 5MB)</span>
                 </label>
                 <input type="file" name="image" x-ref="fileInput" @change="errorMsg = ''" class="w-full text-sm border border-gray-300 p-2 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand-primary/10 file:text-brand-primary hover:file:bg-brand-primary hover:file:text-white cursor-pointer transition-all" required accept="image/*">
-                <p x-show="errorMsg" x-transition class="text-red-500 text-sm mt-2 font-bold flex items-center bg-red-50 p-2 rounded-lg" style="display: none;">
-                    <i class="fas fa-exclamation-circle mr-2"></i> <span x-text="errorMsg"></span>
-                </p>
             </div>
 
             <div>
@@ -62,6 +73,10 @@
                 <textarea name="description" rows="3" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition" required></textarea>
             </div>
             
+            <p x-show="errorMsg" x-transition class="text-red-600 text-sm mt-2 font-bold flex items-center bg-red-50 border border-red-200 p-3 rounded-lg" style="display: none;">
+                <i class="fas fa-exclamation-circle mr-2 text-lg"></i> <span x-text="errorMsg"></span>
+            </p>
+
             <button class="w-full bg-brand-primary text-white py-3 rounded-xl font-bold hover:bg-brand-dark transition-all duration-300 shadow-lg shadow-brand-primary/30 flex justify-center items-center transform hover:-translate-y-0.5">
                 <i class="fas fa-paper-plane mr-2"></i> Kirim Upload
             </button>
@@ -75,16 +90,24 @@
         
         <h3 class="text-xl font-bold mb-4 text-brand-dark border-b border-brand-light/30 pb-2">Upload Projek Web</h3>
         
-        <form action="{{ route('project.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ errorMsg: '' }" @submit="
-            let file = $refs.fileInput.files[0];
-            if(file && file.size > 5242880) {
-                $event.preventDefault();
-                errorMsg = 'Peringatan: Ukuran thumbnail melebihi batas 5MB!';
-            }
-        ">
+        <form action="{{ route('project.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" 
+            x-data="{ errorMsg: '', anon: false, isGuest: {{ Auth::check() ? 'false' : 'true' }} }" 
+            @submit="
+                if (isGuest && !anon) {
+                    $event.preventDefault();
+                    errorMsg = 'Peringatan: Anda belum login! Silakan login atau centang \'Posting sebagai Anonim\' untuk melanjutkan.';
+                    return;
+                }
+                let file = $refs.fileInput.files[0];
+                if(file && file.size > 5242880) {
+                    $event.preventDefault();
+                    errorMsg = 'Peringatan: Ukuran thumbnail melebihi batas 5MB!';
+                    return;
+                }
+            ">
             @csrf
             
-            <div x-data="{ anon: false }" class="space-y-3">
+            <div class="space-y-3">
                 @auth
                     <div x-show="!anon" x-transition class="bg-brand-secondary/20 border border-brand-secondary/50 p-3 rounded-xl flex items-center text-sm text-brand-dark">
                         <i class="fas fa-laptop-code mr-3 text-brand-primary text-lg"></i>
@@ -97,18 +120,24 @@
 
                 <div class="bg-gray-50 border border-gray-200 p-3 rounded-xl transition-all duration-300">
                     <div class="flex items-center mb-2">
-                        <input type="checkbox" id="anonCheckProj" name="is_anonymous" x-model="anon" class="w-4 h-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary">
+                        <input type="checkbox" id="anonCheckProj" name="is_anonymous" x-model="anon" @change="errorMsg = ''" class="w-4 h-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary">
                         <label for="anonCheckProj" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer select-none">
-                            Posting sebagai Anonim {{ !Auth::check() ? '(Tanpa Login)' : '' }}
+                            Posting sebagai Anonim {{ !Auth::check() ? '(Wajib jika belum Login)' : '' }}
                         </label>
                     </div>
                     
-                    <div x-show="!anon" class="text-xs text-gray-500 mt-1 pl-6">
+                    <div x-show="!anon && !isGuest" class="text-xs text-gray-500 mt-1 pl-6">
                         * Centang box di atas untuk menyembunyikan identitas Anda.
                     </div>
 
-                    <div x-show="anon" x-transition class="mt-2 pl-6 text-sm text-brand-primary font-bold flex items-center">
-                        <i class="fas fa-user-secret mr-2"></i> Nama akan diset otomatis menjadi "Anonim".
+                    <div x-show="anon || isGuest" x-transition class="mt-2 pl-6">
+                        <p x-show="anon" class="text-sm text-brand-primary font-bold flex items-center mb-1.5">
+                            <i class="fas fa-user-secret mr-2"></i> Nama akan diset otomatis menjadi "Anonim".
+                        </p>
+                        <p class="text-xs text-red-500 bg-red-50 border border-red-100 p-2 rounded-lg font-semibold flex items-start leading-tight">
+                            <i class="fas fa-exclamation-triangle mr-2 mt-0.5"></i>
+                            Peringatan: Karena diunggah tanpa identitas akun, Anda TIDAK AKAN BISA mengedit atau menghapus projek ini di kemudian hari.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -128,9 +157,6 @@
                     Thumbnail Web <span class="text-gray-400 text-xs font-normal ml-1">(Maksimal: 5MB)</span>
                 </label>
                 <input type="file" name="thumbnail" x-ref="fileInput" @change="errorMsg = ''" class="w-full text-sm border border-gray-300 p-2 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand-secondary/30 file:text-brand-dark hover:file:bg-brand-secondary cursor-pointer transition-all" required accept="image/*">
-                <p x-show="errorMsg" x-transition class="text-red-500 text-sm mt-2 font-bold flex items-center bg-red-50 p-2 rounded-lg" style="display: none;">
-                    <i class="fas fa-exclamation-circle mr-2"></i> <span x-text="errorMsg"></span>
-                </p>
             </div>
 
             <div>
@@ -138,6 +164,10 @@
                 <textarea name="description" rows="3" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition" required></textarea>
             </div>
             
+            <p x-show="errorMsg" x-transition class="text-red-600 text-sm mt-2 font-bold flex items-center bg-red-50 border border-red-200 p-3 rounded-lg" style="display: none;">
+                <i class="fas fa-exclamation-circle mr-2 text-lg"></i> <span x-text="errorMsg"></span>
+            </p>
+
             <button class="w-full bg-brand-primary text-white py-3 rounded-xl font-bold hover:bg-brand-dark transition-all duration-300 shadow-lg shadow-brand-primary/30 flex justify-center items-center transform hover:-translate-y-0.5">
                 <i class="fas fa-upload mr-2"></i> Kirim Projek
             </button>
