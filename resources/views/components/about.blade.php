@@ -20,20 +20,21 @@
                         </div>
                     </div>
 
-                    <div class="headings *:text-center *:leading-4 mt-2">
+                    <div class="headings *:text-center *:leading-4 mt-4 mb-2">
                         <p class="text-xl font-serif font-bold text-brand-dark tracking-wide">AINUN IJLAL</p>
-                        <p class="text-xs font-bold text-brand-primary tracking-widest uppercase mt-1">Fullstack Developer</p>
-                    </div>
+                        </div>
 
                     <div class="w-full items-center justify-center flex mt-2">
                         <ul class="flex flex-col items-start gap-2 has-[:last]:border-b-0 *:inline-flex *:gap-2 *:items-center *:justify-center *:border-b-[1.5px] *:border-b-brand-light/50 *:border-dotted *:text-xs *:font-semibold *:text-gray-600 pb-6 px-8 w-full">
+                            
                             <li class="w-full">
-                                <i class="fas fa-code text-brand-dark group-hover:text-brand-primary transition-colors"></i>
-                                <p>Laravel & Tailwind Expert</p>
+                                <i class="fas fa-phone text-brand-dark group-hover:text-brand-primary transition-colors"></i>
+                                <p>+62 853-9747-6205</p>
                             </li>
+
                             <li class="w-full">
                                 <i class="fas fa-envelope text-brand-dark group-hover:text-brand-primary transition-colors"></i>
-                                <p>ainun.ijlal@tonasa.co.id</p>
+                                <p>ijlalainun@gmail.com</p>
                             </li>
                             <li class="w-full">
                                 <i class="fas fa-globe text-brand-dark group-hover:text-brand-primary transition-colors"></i>
@@ -41,48 +42,42 @@
                             </li>
                             <li class="w-full border-none">
                                 <i class="fas fa-map-marker-alt text-brand-dark group-hover:text-brand-primary transition-colors"></i>
-                                <p>Pangkep, Sulawesi Selatan</p>
+                                <p>Majene, Sulawesi Barat</p>
                             </li>
                         </ul>
                     </div>
                     
                     <hr class="w-full group-hover:h-3 h-2 bg-brand-primary group-hover:transition-all group-hover:duration-300 transition-all duration-300" />
                 </div>
+                
                 <div class="absolute inset-0 bg-brand-accent/20 blur-2xl rounded-full transform scale-90 translate-y-4 -z-10"></div>
             </div>
 
             <div class="md:w-1/2" data-aos="fade-left">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-light/30 border border-brand-light/50 text-brand-dark text-xs font-bold uppercase tracking-wider mb-4">
                     <span class="w-2 h-2 rounded-full bg-brand-primary animate-pulse"></span>
-                    About The Program
-                </div>
+                    About </div>
 
                 <h2 class="text-3xl md:text-4xl font-bold text-brand-dark mb-6 leading-tight">
-                    Membangun Masa Depan <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">Lewat Inovasi Digital</span>
+                    Berkarya Sambil Belajar <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">Mahasiswa Semester 6</span>
                 </h2>
                 
-                <p class="text-lg text-gray-600 leading-relaxed mb-8">
-                    Portal ini didedikasikan untuk menampilkan karya terbaik dari peserta magang <span class="font-bold text-brand-dark">PT Semen Tonasa</span>. 
-                    Kami percaya bahwa kolaborasi antara industri dan talenta muda akan melahirkan solusi yang kreatif dan berdampak nyata.
-                </p>
+                <div class="space-y-4 text-gray-600 leading-relaxed mb-8">
+                    <p>
+                        Halo! Website ini dibangun oleh seorang mahasiswa semester 6 yang menjalani proses magang. Tujuan utamanya adalah sebagai wadah pembelajaran sekaligus mendokumentasikan kegiatan nyata di lapangan.
+                    </p>
+                    <p>
+                        Pengembangan website ini memakan waktu, tenaga, dan kopi. Jika Anda merasa website ini bermanfaat atau ingin mendukung proses belajar saya, dukungan Anda sangat berarti!
+                    </p>
+                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div class="p-4 rounded-xl bg-brand-bg border border-brand-light/30 hover:shadow-lg transition duration-300 group">
-                        <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-brand-primary shadow-sm mb-4 group-hover:scale-110 transition">
-                            <i class="fas fa-bullseye text-xl"></i>
-                        </div>
-                        <h4 class="text-lg font-bold text-brand-dark mb-1">Visi Kami</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Mencetak talenta muda yang siap bersaing di era industri 4.0.</p>
-                    </div>
-
-                    <div class="p-4 rounded-xl bg-brand-bg border border-brand-light/30 hover:shadow-lg transition duration-300 group">
-                        <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-brand-secondary shadow-sm mb-4 group-hover:scale-110 transition">
-                            <i class="fas fa-laptop-code text-xl"></i>
-                        </div>
-                        <h4 class="text-lg font-bold text-brand-dark mb-1">Inovasi Digital</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Mendorong pembuatan solusi teknologi tepat guna.</p>
-                    </div>
+                <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <a href="https://saweria.co/ijlalcode" target="_blank" class="inline-flex items-center gap-3 bg-[#FABC2F] hover:bg-[#e5aa25] text-brand-dark font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <img src="https://saweria.co/favicon.ico" alt="Saweria" class="w-6 h-6">
+                        <span>Traktir Kopi di Saweria</span>
+                    </a>
+                    <span class="text-sm text-gray-400 italic">Terima kasih orang baik! 🙏</span>
                 </div>
             </div>
 
