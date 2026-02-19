@@ -4,7 +4,13 @@
         
         <h3 class="text-xl font-bold mb-4 text-brand-dark border-b border-brand-light/30 pb-2">Upload Foto Dokumentasi</h3>
         
-        <form action="{{ route('doc.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form action="{{ route('doc.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ errorMsg: '' }" @submit="
+            let file = $refs.fileInput.files[0];
+            if(file && file.size > 5242880) {
+                $event.preventDefault();
+                errorMsg = 'Peringatan: Ukuran foto melebihi batas 5MB!';
+            }
+        ">
             @csrf
             
             <div x-data="{ anon: false }" class="space-y-3">
@@ -42,8 +48,13 @@
             </div>
             
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Foto Dokumentasi</label>
-                <input type="file" name="image" class="w-full text-sm border border-gray-300 p-2 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand-primary/10 file:text-brand-primary hover:file:bg-brand-primary hover:file:text-white cursor-pointer transition-all" required accept="image/*">
+                <label class="block text-sm font-bold text-gray-700 mb-1">
+                    Foto Dokumentasi <span class="text-gray-400 text-xs font-normal ml-1">(Maksimal: 5MB)</span>
+                </label>
+                <input type="file" name="image" x-ref="fileInput" @change="errorMsg = ''" class="w-full text-sm border border-gray-300 p-2 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand-primary/10 file:text-brand-primary hover:file:bg-brand-primary hover:file:text-white cursor-pointer transition-all" required accept="image/*">
+                <p x-show="errorMsg" x-transition class="text-red-500 text-sm mt-2 font-bold flex items-center bg-red-50 p-2 rounded-lg" style="display: none;">
+                    <i class="fas fa-exclamation-circle mr-2"></i> <span x-text="errorMsg"></span>
+                </p>
             </div>
 
             <div>
@@ -64,7 +75,13 @@
         
         <h3 class="text-xl font-bold mb-4 text-brand-dark border-b border-brand-light/30 pb-2">Upload Projek Web</h3>
         
-        <form action="{{ route('project.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form action="{{ route('project.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ errorMsg: '' }" @submit="
+            let file = $refs.fileInput.files[0];
+            if(file && file.size > 5242880) {
+                $event.preventDefault();
+                errorMsg = 'Peringatan: Ukuran thumbnail melebihi batas 5MB!';
+            }
+        ">
             @csrf
             
             <div x-data="{ anon: false }" class="space-y-3">
@@ -107,8 +124,13 @@
             </div>
             
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Thumbnail Web</label>
-                <input type="file" name="thumbnail" class="w-full text-sm border border-gray-300 p-2 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand-secondary/30 file:text-brand-dark hover:file:bg-brand-secondary cursor-pointer transition-all" required accept="image/*">
+                <label class="block text-sm font-bold text-gray-700 mb-1">
+                    Thumbnail Web <span class="text-gray-400 text-xs font-normal ml-1">(Maksimal: 5MB)</span>
+                </label>
+                <input type="file" name="thumbnail" x-ref="fileInput" @change="errorMsg = ''" class="w-full text-sm border border-gray-300 p-2 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand-secondary/30 file:text-brand-dark hover:file:bg-brand-secondary cursor-pointer transition-all" required accept="image/*">
+                <p x-show="errorMsg" x-transition class="text-red-500 text-sm mt-2 font-bold flex items-center bg-red-50 p-2 rounded-lg" style="display: none;">
+                    <i class="fas fa-exclamation-circle mr-2"></i> <span x-text="errorMsg"></span>
+                </p>
             </div>
 
             <div>
@@ -182,12 +204,21 @@
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto" @click.away="editDocModal = false">
         <button @click="editDocModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
         <h3 class="text-xl font-bold mb-4 text-brand-dark">Edit Dokumentasi</h3>
-        <form :action="'/doc/update/' + selectedItem.id" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form :action="'/doc/update/' + selectedItem.id" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ errorMsg: '' }" @submit="
+            let file = $refs.editFileInput.files[0];
+            if(file && file.size > 5242880) {
+                $event.preventDefault();
+                errorMsg = 'Peringatan: Ukuran foto baru melebihi batas 5MB!';
+            }
+        ">
             @csrf @method('PUT')
             <input type="text" name="title" x-model="selectedItem.title" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-brand-primary focus:border-brand-primary">
             <div>
-                <p class="text-xs text-gray-500 mb-1 font-bold">Ganti gambar (opsional):</p>
-                <input type="file" name="image" class="w-full text-sm border border-gray-300 p-2 rounded-xl">
+                <p class="text-sm text-gray-700 mb-1 font-bold">Ganti gambar (opsional): <span class="text-gray-400 text-xs font-normal ml-1">(Maksimal: 5MB)</span></p>
+                <input type="file" name="image" x-ref="editFileInput" @change="errorMsg = ''" class="w-full text-sm border border-gray-300 p-2 rounded-xl">
+                <p x-show="errorMsg" x-transition class="text-red-500 text-sm mt-2 font-bold flex items-center bg-red-50 p-2 rounded-lg" style="display: none;">
+                    <i class="fas fa-exclamation-circle mr-2"></i> <span x-text="errorMsg"></span>
+                </p>
             </div>
             <textarea name="description" x-model="selectedItem.description" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-brand-primary focus:border-brand-primary" rows="4"></textarea>
             <button class="w-full bg-brand-secondary text-brand-dark py-3 rounded-xl font-bold hover:bg-brand-accent transition shadow-md">Simpan Perubahan</button>
@@ -199,13 +230,22 @@
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto" @click.away="editProjectModal = false">
         <button @click="editProjectModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
         <h3 class="text-xl font-bold mb-4 text-brand-dark">Edit Projek</h3>
-        <form :action="'/project/update/' + selectedItem.id" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form :action="'/project/update/' + selectedItem.id" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ errorMsg: '' }" @submit="
+            let file = $refs.editFileInput.files[0];
+            if(file && file.size > 5242880) {
+                $event.preventDefault();
+                errorMsg = 'Peringatan: Ukuran thumbnail baru melebihi batas 5MB!';
+            }
+        ">
             @csrf @method('PUT')
             <input type="text" name="title" x-model="selectedItem.title" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-brand-primary focus:border-brand-primary">
             <input type="url" name="project_url" x-model="selectedItem.project_url" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-brand-primary focus:border-brand-primary">
             <div>
-                <p class="text-xs text-gray-500 mb-1 font-bold">Ganti thumbnail (opsional):</p>
-                <input type="file" name="thumbnail" class="w-full text-sm border border-gray-300 p-2 rounded-xl">
+                <p class="text-sm text-gray-700 mb-1 font-bold">Ganti thumbnail (opsional): <span class="text-gray-400 text-xs font-normal ml-1">(Maksimal: 5MB)</span></p>
+                <input type="file" name="thumbnail" x-ref="editFileInput" @change="errorMsg = ''" class="w-full text-sm border border-gray-300 p-2 rounded-xl">
+                <p x-show="errorMsg" x-transition class="text-red-500 text-sm mt-2 font-bold flex items-center bg-red-50 p-2 rounded-lg" style="display: none;">
+                    <i class="fas fa-exclamation-circle mr-2"></i> <span x-text="errorMsg"></span>
+                </p>
             </div>
             <textarea name="description" x-model="selectedItem.description" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-brand-primary focus:border-brand-primary" rows="4"></textarea>
             <button class="w-full bg-brand-secondary text-brand-dark py-3 rounded-xl font-bold hover:bg-brand-accent transition shadow-md">Simpan Perubahan</button>

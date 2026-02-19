@@ -9,12 +9,12 @@
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
 
-          <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-blue-900">
-                <a href="{{ route('home') }}" class="hover:underline"><i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard</a>
-            </h1>
-            <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">Admin Area</span>
-        </div>
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-blue-900">
+            <a href="{{ route('home') }}" class="hover:underline"><i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard</a>
+        </h1>
+        <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">Admin Area</span>
+    </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mt-20">
         
@@ -72,6 +72,7 @@
             </div>
 
             <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                
                 <a href="{{ route('admin.users') }}" class="bg-white rounded-xl shadow-md p-6 border-t-4 border-green-500 hover:shadow-xl transition flex items-center justify-between group">
                     <div>
                         <h3 class="text-lg font-bold group-hover:text-green-600 transition">Kelola User</h3>
@@ -94,6 +95,15 @@
                         @endif
                     </div>
                 </a>
+
+                <a href="{{ route('admin.manage.items') }}" class="bg-white rounded-xl shadow-md p-6 border-t-4 border-purple-500 hover:shadow-xl transition flex items-center justify-between group">
+                    <div>
+                        <h3 class="text-lg font-bold group-hover:text-purple-600 transition">Kelola Publikasi</h3>
+                        <p class="text-sm text-gray-500">Sematkan (Pin) karya ke utama.</p>
+                    </div>
+                    <i class="fas fa-thumbtack text-4xl text-purple-200 group-hover:text-purple-500 transition transform group-hover:-rotate-45"></i>
+                </a>
+
             </div>
         </div>
     </div>

@@ -23,7 +23,8 @@ Route::middleware(['auth'])->group(function() {
     Route::delete('/project/delete/{id}', [PortalController::class, 'deleteProject'])->name('project.delete');
 
     // === ADMIN AREA ===
-    
+    Route::get('/admin/manage-items', [App\Http\Controllers\PortalController::class, 'adminManageItems'])->name('admin.manage.items');
+Route::post('/admin/toggle-pin/{type}/{id}', [App\Http\Controllers\PortalController::class, 'togglePin'])->name('admin.toggle.pin');
     // 1. Dashboard Utama & Settings (BARU)
     Route::get('/admin/dashboard', [PortalController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::post('/admin/settings/update', [PortalController::class, 'updateSettings'])->name('admin.settings.update');

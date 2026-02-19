@@ -18,12 +18,13 @@ class PortalController extends Controller
     {
         $isAdmin = Auth::check() && Auth::user()->role === 'admin';
 
+        // Tampilkan item yang di-pin lebih dulu (is_pinned desc), lalu berdasarkan waktu (latest)
         if ($isAdmin) {
-            $docs = Documentation::latest()->take(6)->get();
-            $projects = Project::latest()->take(6)->get();
+            $docs = Documentation::orderByDesc('is_pinned')->latest()->take(6)->get();
+            $projects = Project::orderByDesc('is_pinned')->latest()->take(6)->get();
         } else {
-            $docs = Documentation::where('status', 'approved')->latest()->take(6)->get();
-            $projects = Project::where('status', 'approved')->latest()->take(6)->get();
+            $docs = Documentation::where('status', 'approved')->orderByDesc('is_pinned')->latest()->take(6)->get();
+            $projects = Project::where('status', 'approved')->orderByDesc('is_pinned')->latest()->take(6)->get();
         }
 
         return view('welcome', compact('docs', 'projects', 'isAdmin'));
@@ -31,21 +32,31 @@ class PortalController extends Controller
 
     public function allDocumentation(Request $request) {
         $query = Documentation::where('status', 'approved');
+        
         if ($request->has('search') && $request->search != '') {
-            $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            $query->where(function($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%')
+                  ->orWhere('author_name', 'like', '%' . $request->search . '%');
+            });
         }
-        $docs = $query->latest()->paginate(9)->withQueryString();
+        
+        $docs = $query->orderByDesc('is_pinned')->latest()->paginate(9)->withQueryString();
         return view('lengkap.documentation', compact('docs'));
     }
 
     public function allProjects(Request $request) {
         $query = Project::where('status', 'approved');
+        
         if ($request->has('search') && $request->search != '') {
-            $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            $query->where(function($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%')
+                  ->orWhere('author_name', 'like', '%' . $request->search . '%');
+            });
         }
-        $projects = $query->latest()->paginate(9)->withQueryString();
+        
+        $projects = $query->orderByDesc('is_pinned')->latest()->paginate(9)->withQueryString();
         return view('lengkap.projects', compact('projects'));
     }
 
@@ -98,14 +109,10 @@ class PortalController extends Controller
 
     // ================== CRUD UTAMA (Upload) ==================
 
-    // ================== CRUD UTAMA (Upload) ==================
-
     private function prepareUploadData(Request $request) {
-        // Cek apakah user menceklis kotak anonim
         $isAnonymous = $request->has('is_anonymous');
 
         if (Auth::check() && !$isAnonymous) {
-            // User sudah login dan TIDAK menceklis kotak anonim
             $user = Auth::user();
             $status = ($user->role === 'admin' || $user->can_post_directly) ? 'approved' : 'pending';
             
@@ -116,7 +123,6 @@ class PortalController extends Controller
                 'msg' => ($status == 'approved') ? 'Berhasil upload dan tayang!' : 'Menunggu persetujuan Admin.'
             ];
         } else {
-            // Berlaku untuk GUEST atau User Login yang menceklis kotak ANONIM
             $anonName = 'Anonim';
             $setting = SystemSetting::where('key', 'anon_needs_approval')->first();
             $needsApproval = $setting ? ($setting->value == '1') : false;
@@ -125,7 +131,6 @@ class PortalController extends Controller
             $msg = $needsApproval ? 'Upload anonim berhasil! Menunggu persetujuan Admin.' : 'Upload anonim berhasil dan langsung tayang!';
 
             return [
-                // Set null agar terbaca oleh sistem admin-pending untuk anonim
                 'user_id' => null, 
                 'author_name' => $anonName,
                 'status' => $status,
@@ -140,7 +145,6 @@ class PortalController extends Controller
     }
 
     public function storeDoc(Request $request) {
-        // PERUBAHAN DISINI: max:5120 (5MB)
         $request->validate(['title'=>'required', 'image'=>'required|image|max:5120', 'description'=>'required']);
         $data = $this->prepareUploadData($request);
         $imagePath = $this->storeImage($request->file('image'), 'docs');
@@ -157,7 +161,6 @@ class PortalController extends Controller
     }
 
     public function storeProject(Request $request) {
-        // PERUBAHAN DISINI: max:5120 (5MB)
         $request->validate(['title'=>'required', 'project_url'=>'required', 'thumbnail'=>'required|image|max:5120']);
         $data = $this->prepareUploadData($request);
         $thumbPath = $this->storeImage($request->file('thumbnail'), 'projects');
@@ -180,10 +183,7 @@ class PortalController extends Controller
         $doc = Documentation::findOrFail($id);
         if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $doc->user_id)) abort(403);
         
-        // Validasi max 5MB jika ada gambar baru
-        $request->validate([
-            'image' => 'nullable|image|max:5120' 
-        ]);
+        $request->validate(['image' => 'nullable|image|max:5120']);
 
         $doc->title = $request->title;
         $doc->description = $request->description;
@@ -203,10 +203,7 @@ class PortalController extends Controller
         $proj = Project::findOrFail($id);
         if (!Auth::check() || (Auth::user()->role !== 'admin' && Auth::id() != $proj->user_id)) abort(403);
         
-        // Validasi max 5MB jika ada gambar baru
-        $request->validate([
-            'thumbnail' => 'nullable|image|max:5120'
-        ]);
+        $request->validate(['thumbnail' => 'nullable|image|max:5120']);
 
         $proj->title = $request->title;
         $proj->project_url = $request->project_url;
@@ -223,7 +220,7 @@ class PortalController extends Controller
         return back()->with('success', 'Dihapus.');
     }
 
-    // ================== ADMIN SETTINGS (Sama seperti sebelumnya) ==================
+    // ================== ADMIN SETTINGS ==================
     public function adminDashboard() {
         if (Auth::user()->role !== 'admin') abort(403);
         $anonSetting = SystemSetting::where('key', 'anon_needs_approval')->first();
@@ -283,5 +280,51 @@ class PortalController extends Controller
         if (Auth::user()->role !== 'admin') abort(403);
         User::destroy($id);
         return back()->with('success', 'User dihapus.');
+    }
+
+    // ================== NEW FEATURE: KELOLA ITEM (PIN/UNPIN) ==================
+    public function adminManageItems(Request $request) {
+        if (Auth::user()->role !== 'admin') abort(403);
+        
+        $search = $request->search;
+        
+        $docQuery = Documentation::query();
+        $projQuery = Project::query();
+
+        // Fitur Pencarian 
+        if ($search) {
+            $docQuery->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('author_name', 'like', "%{$search}%");
+            });
+            $projQuery->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('author_name', 'like', "%{$search}%");
+            });
+        }
+
+        // Ambil data dengan Pagination terpisah agar rapi (diurutkan berdasarkan pin lalu terbaru)
+        $docs = $docQuery->orderByDesc('is_pinned')->latest()->paginate(10, ['*'], 'doc_page');
+        $projects = $projQuery->orderByDesc('is_pinned')->latest()->paginate(10, ['*'], 'proj_page');
+
+        return view('admin.manage-items', compact('docs', 'projects', 'search'));
+    }
+
+    public function togglePin($type, $id) {
+        if (Auth::user()->role !== 'admin') abort(403);
+        
+        if ($type === 'doc') {
+            $item = Documentation::findOrFail($id);
+        } else if ($type === 'project') {
+            $item = Project::findOrFail($id);
+        } else {
+            abort(404);
+        }
+
+        $item->is_pinned = !$item->is_pinned;
+        $item->save();
+
+        $statusMsg = $item->is_pinned ? 'berhasil disematkan (Pin)' : 'berhasil dilepas dari sematan (Unpin)';
+        return back()->with('success', 'Karya ' . $statusMsg);
     }
 }
