@@ -68,7 +68,7 @@
                             <button @click="selectedItem = {{ $doc }}; editDocModal = true" class="text-gray-400 bg-gray-50 hover:bg-brand-secondary hover:text-brand-dark rounded-md p-1.5 transition">
                                 <i class="fas fa-edit w-4 h-4 flex items-center justify-center"></i>
                             </button>
-                            <form action="{{ route('doc.delete', $doc->id) }}" method="POST" onsubmit="return confirm('Hapus dokumentasi ini?')" class="inline">
+                            <form action="{{ route('doc.delete', $doc->id) }}" method="POST" onsubmit="event.preventDefault(); confirmDelete(this, 'Hapus karya ini secara permanen?');" class="inline">
                                 @csrf @method('DELETE')
                                 <button class="text-gray-400 bg-gray-50 hover:bg-red-500 hover:text-white rounded-md p-1.5 transition">
                                     <i class="fas fa-trash w-4 h-4 flex items-center justify-center"></i>

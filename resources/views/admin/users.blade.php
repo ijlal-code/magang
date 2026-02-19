@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
@@ -36,17 +37,6 @@
             </form>
         </div>
 
-        @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm">
-                {{ session('error') }}
-            </div>
-        @endif
-
         <form action="{{ route('admin.users.bulk') }}" method="POST" id="bulkForm" x-data="{ selectAll: false }">
             @csrf
             
@@ -63,7 +53,7 @@
                     <button type="submit" name="action" value="restrict" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm transition shadow">
                         <i class="fas fa-ban mr-1"></i> Batasi Upload
                     </button>
-                    <button type="submit" name="action" value="delete" onclick="return confirm('Yakin hapus user terpilih? Data tidak bisa kembali.')" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition shadow">
+                    <button type="button" onclick="confirmBulkDelete()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition shadow">
                         <i class="fas fa-trash mr-1"></i> Hapus User
                     </button>
                 </div>
@@ -119,19 +109,51 @@
                     </tbody>
                 </table>
             </div>
-            
-            <div class="mt-4 text-sm text-gray-500 px-2">
-                Total: {{ count($users) }} Peserta
-            </div>
         </form>
     </div>
 
     <script>
+        @if(session('success')) Swal.fire({ icon: 'success', title: 'Berhasil', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false }); @endif
+        @if(session('error')) Swal.fire({ icon: 'error', title: 'Gagal', text: "{{ session('error') }}" }); @endif
+
         function toggleAll(source) {
             checkboxes = document.querySelectorAll('.user-checkbox');
             for(var i=0, n=checkboxes.length;i<n;i++) {
                 checkboxes[i].checked = source.checked;
             }
+        }
+
+        // SCRIPT SWEETALERT UNTUK HAPUS MASSAL
+        function confirmBulkDelete() {
+            let checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+            
+            if(checkedCount === 0) {
+                Swal.fire({ icon: 'warning', title: 'Oops...', text: 'Pilih minimal satu user terlebih dahulu!' });
+                return;
+            }
+
+            Swal.fire({
+                title: `Hapus ${checkedCount} User Terpilih?`,
+                text: "Semua data terkait user tersebut juga akan terhapus dan tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus Semua!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = document.getElementById('bulkForm');
+                    // Buat input hidden agar controller tahu ini adalah request Hapus
+                    let input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'action';
+                    input.value = 'delete';
+                    form.appendChild(input);
+                    form.submit();
+                }
+            });
         }
     </script>
 </body>

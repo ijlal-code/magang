@@ -67,7 +67,7 @@
                             <button @click="selectedItem = {{ $proj }}; editProjectModal = true" class="text-gray-400 hover:text-blue-600 p-1 transition">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <form action="{{ route('project.delete', $proj->id) }}" method="POST" onsubmit="return confirm('Hapus projek ini?')" class="inline">
+                            <form action="{{ route('project.delete', $proj->id) }}" method="POST" onsubmit="event.preventDefault(); confirmDelete(this, 'Hapus karya ini secara permanen?');" class="inline">
                                 @csrf @method('DELETE')
                                 <button class="text-gray-400 hover:text-red-600 p-1 transition">
                                     <i class="fas fa-trash"></i>

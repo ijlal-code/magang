@@ -12,12 +12,12 @@
                 extend: {
                     colors: {
                         brand: {
-                            dark: '#042940',      /* Navy Blue - Footer, Headings */
-                            primary: '#005C53',   /* Deep Teal - Main Brand Color */
-                            secondary: '#9FC131', /* Muted Lime - Hover states */
-                            accent: '#DBF227',    /* Bright Neon - CTA, Highlights */
-                            light: '#D6D58E',     /* Pale Yellow - Subtle Backgrounds */
-                            bg: '#F8FAF9',        /* Very light tint for body bg */
+                            dark: '#042940',      
+                            primary: '#005C53',   
+                            secondary: '#9FC131', 
+                            accent: '#DBF227',    
+                            light: '#D6D58E',     
+                            bg: '#F8FAF9',        
                         }
                     },
                     fontFamily: {
@@ -36,14 +36,11 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
         .hero-bg {
-            /* Menggunakan Gradient Overlay dari warna tema Anda */
             background: linear-gradient(to bottom right, rgba(4, 41, 64, 0.85), rgba(0, 92, 83, 0.75)), url('https://images.unsplash.com/photo-1581094794329-cd56b5095a8e?auto=format&fit=crop&w=1950&q=80');
             background-size: cover; background-position: center; background-attachment: fixed;
         }
         [x-cloak] { display: none !important; }
-        
         @supports (-webkit-touch-callout: none) {
             .hero-bg { background-attachment: scroll; }
         }
@@ -67,9 +64,6 @@
         <div class="absolute bottom-20 right-10 w-40 h-40 bg-brand-secondary opacity-20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
 
         <div class="relative z-10 text-center max-w-5xl mx-auto" data-aos="fade-up" data-aos-duration="800">
-            
-            
-
             <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 drop-shadow-2xl tracking-tight leading-tight text-white">
                  Magang <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-secondary">Tonasa</span>
             </h1>
@@ -80,16 +74,10 @@
 
             @guest
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-4">
-                    <button @click="registerModal = true" 
-                            class="w-full sm:w-auto bg-brand-accent hover:bg-brand-secondary text-brand-dark font-bold py-4 px-8 rounded-full 
-                                   shadow-[0_0_20px_rgba(219,242,39,0.3)] transform transition-all duration-300 ease-out 
-                                   hover:scale-105 active:scale-95">
+                    <button @click="registerModal = true" class="w-full sm:w-auto bg-brand-accent hover:bg-brand-secondary text-brand-dark font-bold py-4 px-8 rounded-full shadow-[0_0_20px_rgba(219,242,39,0.3)] transform transition-all duration-300 ease-out hover:scale-105 active:scale-95">
                         Daftar Sekarang <i class="fas fa-arrow-right ml-2"></i>
                     </button>
-
-                    <button @click="loginModal = true" 
-                            class="w-full sm:w-auto bg-white/10 backdrop-blur-md border border-white/30 text-white font-semibold py-4 px-8 rounded-full 
-                                   hover:bg-brand-dark/50 hover:border-brand-accent hover:text-brand-accent transition-all duration-300">
+                    <button @click="loginModal = true" class="w-full sm:w-auto bg-white/10 backdrop-blur-md border border-white/30 text-white font-semibold py-4 px-8 rounded-full hover:bg-brand-dark/50 hover:border-brand-accent hover:text-brand-accent transition-all duration-300">
                         Masuk Akun
                     </button>
                 </div>
@@ -122,24 +110,34 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        window.addEventListener('load', function() {
-            AOS.init({ once: true, duration: 800, offset: 50 });
-        });
+        window.addEventListener('load', function() { AOS.init({ once: true, duration: 800, offset: 50 }); });
 
+        // SWEETALERT NOTIFIKASI
         @if(session('success'))
-            Swal.fire({ 
-                icon: 'success', 
-                title: 'Berhasil', 
-                text: "{{ session('success') }}", 
-                timer: 3000, 
-                showConfirmButton: false, 
-                background: '#fff',
-                iconColor: '#005C53'
-            });
+            Swal.fire({ icon: 'success', title: 'Berhasil', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false, background: '#fff', iconColor: '#005C53' });
         @endif
         @if(session('error'))
             Swal.fire({ icon: 'error', title: 'Gagal', text: "{{ session('error') }}" });
         @endif
+
+        // FUNGSI GLOBAL SWEETALERT UNTUK HAPUS DATA
+        function confirmDelete(formElement, message = 'Data yang dihapus tidak dapat dikembalikan!') {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444', // Warna Merah
+                cancelButtonColor: '#6b7280', // Warna Abu-abu
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formElement.submit(); // Submit form jika user klik 'Ya'
+                }
+            });
+        }
     </script>
 </body>
 </html>
