@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Super Admin',
             'email' => 'admin@tonasa.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('raider'),
             'role' => 'admin',           // Role Admin
             'can_post_directly' => true, // Admin bebas upload
         ]);
