@@ -30,13 +30,23 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style> body { font-family: 'Inter', sans-serif; } [x-cloak] { display: none !important; } </style>
 </head>
 
+@php
+    $showLoginModal = session('error') || (old('email') && !old('name') && $errors->any()) ? 'true' : 'false';
+    $showRegisterModal = old('name') && $errors->any() ? 'true' : 'false';
+@endphp
+
 <body class="bg-brand-bg text-gray-800 font-sans antialiased" x-data="{ 
-    loginModal: false, 
-    registerModal: false, 
+    loginModal: {{ $showLoginModal }}, 
+    registerModal: {{ $showRegisterModal }}, 
+    uploadDocModal: false, 
+    uploadProjectModal: false,
+    editDocModal: false,
+    editProjectModal: false,
     detailModal: false,
     selectedItem: {} 
 }">
@@ -51,46 +61,51 @@
             </a>
         </div>
 
-        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+       <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-brand-dark">Showcase Projek</h1>
                 <p class="text-gray-500 mt-1 font-medium">Kumpulan karya aplikasi dan website peserta magang.</p>
             </div>
             
-            <form action="{{ route('projects.index') }}" method="GET" class="w-full md:w-auto relative">
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari projek..." 
-                       class="w-full md:w-80 border border-brand-light/50 rounded-full py-2.5 pl-5 pr-12 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm bg-white transition-all">
-                <button type="submit" class="absolute right-4 top-3 text-gray-400 hover:text-brand-primary transition">
-                    <i class="fas fa-search"></i>
+            <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3">
+                <button @click="uploadProjectModal = true" class="w-full sm:w-auto bg-brand-primary hover:bg-brand-dark text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-brand-primary/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                    <i class="fas fa-upload"></i> Upload Projek
                 </button>
-            </form>
+                <form action="{{ route('projects.index') }}" method="GET" class="w-full sm:w-auto relative">
+                    <input type="text" name="search" value="{{ request('search') }}" 
+                           placeholder="Cari projek..." 
+                           class="w-full sm:w-80 border border-brand-light/50 rounded-full py-2.5 pl-5 pr-12 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm bg-white transition-all">
+                    <button type="submit" class="absolute right-4 top-3 text-gray-400 hover:text-brand-primary transition">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
             @forelse($projects as $proj)
                 <div class="bg-white rounded-2xl shadow-sm border border-brand-light/30 overflow-hidden hover:shadow-xl hover:shadow-brand-primary/10 transition duration-300 group flex flex-col h-full transform hover:-translate-y-1">
                      
-                    <div @click="selectedItem = { 
-                            type: 'project', 
-                            title: '{{ addslashes($proj->title) }}', 
-                            desc: '{{ addslashes(preg_replace('/\s+/', ' ', $proj->description)) }}', 
-                            img: '{{ asset($proj->thumbnail_path) }}', 
-                            author: '{{ addslashes($proj->author_name) }}', 
-                            date: '{{ $proj->created_at->diffForHumans() }}',
-                            project_url: '{{ $proj->project_url }}'
-                         }; detailModal = true" 
-                         class="h-52 overflow-hidden relative bg-brand-light/20 cursor-pointer">
+                    <div class="h-52 overflow-hidden relative bg-brand-light/20">
                          
                         <img src="{{ asset($proj->thumbnail_path) }}" 
                              alt="{{ $proj->title }}"
                              class="w-full h-full object-cover transition duration-700 group-hover:scale-110"
                              onerror="this.src='https://via.placeholder.com/800x400?text=No+Thumb'">
                         
-                        <div class="absolute inset-0 bg-brand-dark/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-                            <span class="text-brand-dark bg-white/90 px-5 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2">
+                        <div class="absolute inset-0 bg-brand-dark/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm pointer-events-none">
+                            <button @click="selectedItem = { 
+                                    type: 'project', 
+                                    title: '{{ addslashes($proj->title) }}', 
+                                    desc: '{{ addslashes(preg_replace('/\s+/', ' ', $proj->description)) }}', 
+                                    img: '{{ asset($proj->thumbnail_path) }}', 
+                                    author: '{{ addslashes($proj->author_name) }}', 
+                                    date: '{{ $proj->created_at->diffForHumans() }}',
+                                    project_url: '{{ $proj->project_url }}'
+                                 }; detailModal = true" 
+                                class="text-brand-dark bg-white/90 hover:bg-white px-6 py-2.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 pointer-events-auto transform hover:scale-105 transition">
                                 <i class="fas fa-expand"></i> Preview Detail
-                            </span>
+                            </button>
                         </div>
                     </div>
                     
@@ -106,23 +121,41 @@
 
                         <p class="text-gray-500 text-sm mb-5 line-clamp-3 leading-relaxed flex-grow">{{ $proj->description }}</p>
                         
-                        <div class="mt-auto pt-4 border-t border-brand-light/30 flex gap-3">
-                            <button @click="selectedItem = { 
-                                    type: 'project', 
-                                    title: '{{ addslashes($proj->title) }}', 
-                                    desc: '{{ addslashes(preg_replace('/\s+/', ' ', $proj->description)) }}', 
-                                    img: '{{ asset($proj->thumbnail_path) }}', 
-                                    author: '{{ addslashes($proj->author_name) }}', 
-                                    date: '{{ $proj->created_at->diffForHumans() }}',
-                                    project_url: '{{ $proj->project_url }}'
-                                 }; detailModal = true" 
-                                 class="flex-1 bg-brand-light/20 text-brand-dark hover:bg-brand-primary hover:text-white py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2">
-                                <i class="fas fa-info-circle"></i> Detail Info
-                            </button>
-                            
-                            <a href="{{ $proj->project_url }}" target="_blank" class="flex-1 bg-brand-primary hover:bg-brand-dark text-white py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/20">
-                                <i class="fas fa-external-link-alt"></i> Kunjungi Web
-                            </a>
+                        <div class="mt-auto pt-4 border-t border-brand-light/30 space-y-2">
+                            <div class="flex gap-2">
+                                <button @click="selectedItem = { 
+                                        type: 'project', 
+                                        title: '{{ addslashes($proj->title) }}', 
+                                        desc: '{{ addslashes(preg_replace('/\s+/', ' ', $proj->description)) }}', 
+                                        img: '{{ asset($proj->thumbnail_path) }}', 
+                                        author: '{{ addslashes($proj->author_name) }}', 
+                                        date: '{{ $proj->created_at->diffForHumans() }}',
+                                        project_url: '{{ $proj->project_url }}'
+                                     }; detailModal = true" 
+                                     class="flex-1 bg-brand-light/20 text-brand-dark hover:bg-brand-primary hover:text-white py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1">
+                                    <i class="fas fa-info-circle"></i> Detail Info
+                                </button>
+                                
+                                <a href="{{ $proj->project_url }}" target="_blank" class="flex-1 bg-brand-primary hover:bg-brand-dark text-white py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1 shadow-sm">
+                                    <i class="fas fa-external-link-alt"></i> Kunjungi Web
+                                </a>
+                            </div>
+
+                            @auth
+                                @if(Auth::user()->role === 'admin' || Auth::id() == $proj->user_id)
+                                <div class="flex gap-2">
+                                   <button @click="selectedItem = { id: {{ $proj->id }}, title: '{{ addslashes($proj->title) }}', description: '{{ addslashes(preg_replace('/\s+/', ' ', $proj->description)) }}', project_url: '{{ $proj->project_url }}', thumbnail_path: '{{ asset($proj->thumbnail_path) }}' }; editProjectModal = true" class="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white py-2 rounded-xl text-xs font-bold transition-colors text-center flex items-center justify-center gap-1">
+    <i class="fas fa-edit"></i> Edit
+</button>
+                                    <form action="{{ route('project.delete', $proj->id) }}" method="POST" class="flex-1 m-0">
+                                        @csrf @method('DELETE')
+                                        <button type="button" onclick="confirmDelete(this.parentElement)" class="w-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1">
+                                            <i class="fas fa-trash"></i> Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                                @endif
+                            @endauth
                         </div>
                     </div>
                 </div>
@@ -149,5 +182,32 @@
     
     @include('components.modals-auth')
     @include('components.modals-content')
+
+    <script>
+        @if(session('success'))
+            Swal.fire({ icon: 'success', title: 'Berhasil', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false });
+        @endif
+        @if(session('error') && session('error') != 'Email atau password salah.')
+            Swal.fire({ icon: 'error', title: 'Gagal', text: "{{ session('error') }}" });
+        @endif
+
+        function confirmDelete(formElement) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: 'Data yang dihapus tidak dapat dikembalikan!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444', 
+                cancelButtonColor: '#6b7280', 
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formElement.submit();
+                }
+            });
+        }
+    </script>
 </body>
 </html>

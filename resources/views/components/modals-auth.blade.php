@@ -29,7 +29,7 @@
             @csrf
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" name="email" placeholder="contoh@email.com" 
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="contoh@gmail.com" 
                        class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50" required>
             </div>
             
@@ -97,7 +97,10 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input type="password" name="password" placeholder="Min. 6 karakter" 
-                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-gray-50" required>
+                       class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-gray-50 @error('password') border-red-500 @enderror" required>
+                @error('password')
+                    <p class="text-red-500 text-xs mt-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                @enderror
             </div>
 
             <div>

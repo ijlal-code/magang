@@ -46,9 +46,14 @@
         }
     </style>
 </head>
+@php
+    // Cek apakah ada error login atau error register
+    $showLoginModal = session('error') || (old('email') && !old('name') && $errors->any()) ? 'true' : 'false';
+    $showRegisterModal = old('name') && $errors->any() ? 'true' : 'false';
+@endphp
 <body class="bg-brand-bg text-brand-dark font-sans antialiased" x-data="{ 
-    loginModal: false, 
-    registerModal: false, 
+    loginModal: {{ $showLoginModal }}, 
+    registerModal: {{ $showRegisterModal }}, 
     uploadDocModal: false, 
     uploadProjectModal: false,
     editDocModal: false,
@@ -110,13 +115,24 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        window.addEventListener('load', function() { AOS.init({ once: true, duration: 800, offset: 50 }); });
+        window.addEventListener('load', function() { 
+            // Cek apakah ada error dari session atau validasi form
+            const hasFormErrors = {{ (session('error') || $errors->any()) ? 'true' : 'false' }};
+            
+            AOS.init({ 
+                once: true, 
+                duration: 800, 
+                offset: 50,
+                // Matikan animasi sepenuhnya jika ada error agar langsung tampil
+                disable: hasFormErrors 
+            }); 
+        });
 
         // SWEETALERT NOTIFIKASI
         @if(session('success'))
             Swal.fire({ icon: 'success', title: 'Berhasil', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false, background: '#fff', iconColor: '#005C53' });
         @endif
-        @if(session('error'))
+       @if(session('error') && session('error') != 'Email atau password salah.')
             Swal.fire({ icon: 'error', title: 'Gagal', text: "{{ session('error') }}" });
         @endif
 
@@ -127,14 +143,14 @@
                 text: message,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ef4444', // Warna Merah
-                cancelButtonColor: '#6b7280', // Warna Abu-abu
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Ya, Hapus!',
                 cancelButtonText: 'Batal',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    formElement.submit(); // Submit form jika user klik 'Ya'
+                    formElement.submit();
                 }
             });
         }

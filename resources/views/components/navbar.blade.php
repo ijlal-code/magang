@@ -99,8 +99,10 @@
         </div>
     </div>
 
-    <div x-show="mobileMenuOpen" 
+   <div x-show="mobileMenuOpen" 
          x-collapse 
+         x-cloak
+         style="display: none;"
          class="md:hidden bg-white border-t border-brand-light/50 shadow-xl">
         
         <div class="px-4 pt-4 pb-8 space-y-2">
